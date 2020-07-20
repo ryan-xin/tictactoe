@@ -49,11 +49,22 @@ body {
   border-radius: 8px;
   outline: none;
   cursor: pointer;
+  display: inline-block;
 }
 
 .restart:hover {
   color: #171717 !important;
   background-color: #ffffff;
+}
+
+/* ------------------------------- Burger Menu ------------------------------ */
+
+.burger_menu, .burger_close {
+  margin-left: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  cursor: pointer;
+  z-index: 1000;
 }
 
 /* ----------------------------- Main Container ----------------------------- */

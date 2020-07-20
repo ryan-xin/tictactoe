@@ -181,6 +181,20 @@ $(document).ready(function () {
     $('.message h2').text('It is Player One\'s turn.');
   };
 
+  /* -------------------------------- Show Menu ------------------------------- */
+
+  const showMenu = function() {
+    $(this).attr('src', 'assets/burger_close.svg');
+    $(this).attr('class', 'burger_close');
+    $('.burger_close').on('click', hideMenu);
+  };
+
+
+  const hideMenu = function() {
+    $(this).attr('src', 'assets/burger_menu.svg');
+    $(this).attr('class', 'burger_menu');
+    $('.burger_menu').on('click', showMenu);
+  }
 
   /* ------------------------------ Event Handler ----------------------------- */
 
@@ -193,7 +207,10 @@ $(document).ready(function () {
   $('.restart').on('click', restartGame);
  
 
+  $('.burger_menu').on('click', showMenu);
 
+  
+  $('.burger_close').on('click', hideMenu);
 
 
 

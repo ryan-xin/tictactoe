@@ -184,16 +184,12 @@ $(document).ready(function () {
   /* -------------------------------- Show Menu ------------------------------- */
 
   const showMenu = function() {
-    $(this).attr('src', 'assets/burger_close.svg');
-    $(this).attr('class', 'burger_close');
-    $('.burger_close').on('click', hideMenu);
+    $('.menu-container').height('100%');
   };
 
 
   const hideMenu = function() {
-    $(this).attr('src', 'assets/burger_menu.svg');
-    $(this).attr('class', 'burger_menu');
-    $('.burger_menu').on('click', showMenu);
+    $('.menu-container').height('0%');
   }
 
   /* ------------------------------ Event Handler ----------------------------- */
@@ -213,6 +209,21 @@ $(document).ready(function () {
   $('.burger_close').on('click', hideMenu);
 
 
+  $('.token-set-one').on('click', function() {
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    console.log(playerOne);
+    playerOne.token = 'assets/token_bone.svg';
+    playerOne.tokenWin = 'assets/token_bone_win.svg';
+  })
+
+  $('.token-set-two').on('click', function() {
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    console.log(playerOne);
+    playerTwo.token = 'assets/token_fish.svg';
+    playerTwo.tokenWin = 'assets/token_fish_win.svg';
+  })
 
 
 

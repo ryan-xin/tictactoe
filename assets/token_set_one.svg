@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="160px" height="64px" viewBox="0 0 160 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>token_set_one</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group-2" transform="translate(10.000000, 5.000000)">
+            <circle id="token_circle" stroke="#FFFFFF" stroke-width="9" cx="27" cy="27" r="22.5"></circle>
+            <path d="M134.655565,3 L141,9.34443508 L123.344,27 L141,44.6555649 L134.655565,51 L117,33.344 L99.3444351,51 L93,44.6555649 L110.656,27 L93,9.34443508 L99.3444351,3 L117,20.656 L134.655565,3 Z" id="Combined-Shape" fill="#FFFFFF"></path>
+        </g>
+    </g>
+</svg>

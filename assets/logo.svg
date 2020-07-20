@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="65px" height="64px" viewBox="0 0 65 64" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>logo</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD" transform="translate(-42.000000, -8.000000)">
+            <g id="logo" transform="translate(42.500000, 8.000000)">
+                <text id="T" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="4.43076923" y="18">T</tspan>
+                </text>
+                <text id="T" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="4.43076923" y="39">T</tspan>
+                </text>
+                <text id="T" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="4.43076923" y="61">T</tspan>
+                </text>
+                <text id="I" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="30.0307692" y="18">I</tspan>
+                </text>
+                <text id="A" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="26.5846154" y="39">A</tspan>
+                </text>
+                <text id="O" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="26.5846154" y="61">O</tspan>
+                </text>
+                <text id="C" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="47.7538462" y="18">C</tspan>
+                </text>
+                <text id="C" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="47.7538462" y="39">C</tspan>
+                </text>
+                <text id="C" font-family="Roboto-Medium, Roboto" font-size="17" font-weight="400" line-spacing="18" fill="#FFFFFF">
+                    <tspan x="47.7538462" y="61">C</tspan>
+                </text>
+                <rect id="Rectangle" fill="#858585" x="0.492307692" y="21" width="63.0153846" height="1"></rect>
+                <rect id="Rectangle" fill="#858585" x="0.492307692" y="42" width="63.0153846" height="1"></rect>
+                <polygon id="Rectangle" fill="#858585" transform="translate(21.661538, 32.000000) rotate(-90.000000) translate(-21.661538, -32.000000) " points="-10.3384615 31.5076923 53.6615385 31.5076923 53.6615385 32.4923077 -10.3384615 32.4923077"></polygon>
+                <polygon id="Rectangle" fill="#858585" transform="translate(42.338462, 32.000000) rotate(-90.000000) translate(-42.338462, -32.000000) " points="10.3384615 31.5076923 74.3384615 31.5076923 74.3384615 32.4923077 10.3384615 32.4923077"></polygon>
+            </g>
+        </g>
+    </g>
+</svg>

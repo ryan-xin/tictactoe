@@ -25,7 +25,7 @@ let tieResult = 0;
 let message = 'Enjoy the game!';
 
 // Token toggle position when 1: highlight on Set One; 2 highlight on Set Two
-let tokenToggle;
+let tokenToggle = 1;
 
 // Grid toggle position when 3: highlight on Grid One 3x3; 3 highlight on Grid Two 4x4
 let gridToggle = 3;
@@ -38,18 +38,7 @@ let blockImageArr = [];
 
 /* --------------------------- Load Local Storage --------------------------- */
 
-if (localStorage !== undefined) {
-  playerOne = JSON.parse(localStorage.getItem('playerOne'));
-  tieResult = JSON.parse(localStorage.getItem('tieResult'));
-  playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
-  playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
-  message = JSON.parse(localStorage.getItem('message'));
-  tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
-  gridToggle = JSON.parse(localStorage.getItem('gridToggle'));
-  blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
-  blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
-  console.log(gridToggle);
-}
+
 
 
 /* -------------------------- Player Play Function -------------------------- */
@@ -515,6 +504,20 @@ const saveGame = function () {
 
 
 $(document).ready(function () {
+
+  if (localStorage !== undefined) {
+    playerOne = JSON.parse(localStorage.getItem('playerOne'));
+    tieResult = JSON.parse(localStorage.getItem('tieResult'));
+    playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
+    playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
+    message = JSON.parse(localStorage.getItem('message'));
+    tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
+    gridToggle = JSON.parse(localStorage.getItem('gridToggle'));
+    blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
+    blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
+    // console.log(gridToggle);
+  }
+
 
   // Reset all data;
   $('.player-one-result').text(playerOne.name);

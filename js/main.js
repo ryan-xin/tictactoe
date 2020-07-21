@@ -59,7 +59,8 @@ const playerPlay = function () {
       // Add player1 class to the block
       $(this).addClass('player1');
       // Update the message
-      $('.message h2').text('It is ' + playerTwo.name + '\'s turn.');
+      message = 'It is ' + playerTwo.name + '\'s turn.';
+      $('.message h2').text(message);
       // Checking if Player One wins
       if (winnerCheck(playerOne, 'player1')) {
         playerOne.result += 1;
@@ -76,7 +77,8 @@ const playerPlay = function () {
       // Add player2 class to the block
       $(this).addClass('player2');
       // Update the message
-      $('.message h2').text('It is ' + playerOne.name + '\'s turn.');
+      message = 'It is ' + playerOne.name + '\'s turn.';
+      $('.message h2').text(message);
       // Checking if Player Two wins
       if (winnerCheck(playerTwo, 'player2')) {
         playerTwo.result += 1;
@@ -360,6 +362,7 @@ $(document).ready(function () {
   $('.player-one-result-number').text(playerOne.result);
   $('.player-two-result-number').text(playerTwo.result);
   $('.tie-result-number').text(tieResult);
+  $('.message h2').text(message);
 
 
   $('.block').on('click', playerPlay);

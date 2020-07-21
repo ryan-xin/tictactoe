@@ -192,6 +192,22 @@ $(document).ready(function () {
     $('.menu-container').height('0%');
   }
 
+  /* ------------------------------ Select Tokens ----------------------------- */
+
+  const changeToTokenSetOne = function() {
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    playerOne.token = 'assets/token_bone.svg';
+    playerOne.tokenWin = 'assets/token_bone_win.svg';
+  }
+
+  const changeToTokenSetTwo = function() {
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    playerOne.token = 'assets/token_fish.svg';
+    playerOne.tokenWin = 'assets/token_fish_win.svg';
+  }
+
   /* ------------------------------ Event Handler ----------------------------- */
 
   $('.block').on('click', playerPlay);
@@ -209,21 +225,10 @@ $(document).ready(function () {
   $('.burger_close').on('click', hideMenu);
 
 
-  $('.token-set-one').on('click', function() {
-    $(this).addClass('set-selected');
-    $(this).siblings().removeClass('set-selected');
-    console.log(playerOne);
-    playerOne.token = 'assets/token_bone.svg';
-    playerOne.tokenWin = 'assets/token_bone_win.svg';
-  })
+  $('.token-set-one').on('click', changeToTokenSetOne);
 
-  $('.token-set-two').on('click', function() {
-    $(this).addClass('set-selected');
-    $(this).siblings().removeClass('set-selected');
-    console.log(playerOne);
-    playerTwo.token = 'assets/token_fish.svg';
-    playerTwo.tokenWin = 'assets/token_fish_win.svg';
-  })
+  
+  $('.token-set-two').on('click', changeToTokenSetTwo);
 
 
 

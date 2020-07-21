@@ -42,13 +42,14 @@ body {
   color: #ffffff;
 }
 
-/* Change Tokens */
+/* Change Tokens & Change Grid */
 
 .menu-content h2 {
   margin-bottom: 20px;
 }
 
-.flex-item-token {
+.flex-item-token,
+.flex-item-grid {
   width: 260px;
   height: 100px;
   background-color: #171717;
@@ -70,6 +71,11 @@ body {
 
 .token-set-one:hover,
 .token-set-two:hover {
+  background-color: #292929;
+}
+
+.grid-set-one:hover,
+.grid-set-two:hover {
   background-color: #292929;
 }
 

@@ -291,22 +291,30 @@ const restartGame = function () {
   $('.block').hover(blockMouseEnter, blockMouseLeave);
   $('.block').css('background', '#292929');
   $('.block').css('cursor', 'pointer');
-  $('.message h2').text('Enjoy the game!');
+  message = 'Enjoy the game!';
+  $('.message h2').text(message);
   playerTurn = 1;
+  blockClassArr = [];
+  blockImageArr = [];
+  saveGame();
 };
 
 
 
 /* -------------------------------- New Game -------------------------------- */
 
-// Clear history
+// Clear everything
 const newGame = function() {
+  restartGame();
+  blockClassArr = [];
+  blockImageArr = [];
+  message = 'Enjoy the game!';
   playerOne.result = 0;
   playerTwo.result = 0;
   playerTurn = 1;
   tieResult = 0;  
-  tokenToggle = 1;
-  restartGame();
+  // tokenToggle = 1;
+  saveGame();
   hideMenu();
   $('.player-one-result').text(playerOne.name);
   $('.player-two-result').text(playerTwo.name);

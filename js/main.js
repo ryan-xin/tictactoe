@@ -24,8 +24,11 @@ let tieResult = 0;
 // Starter message
 let message = 'Enjoy the game!';
 
-// Token toggle position when 1: highlight on Set One; -1 highlight on Set Two
+// Token toggle position when 1: highlight on Set One; 2 highlight on Set Two
 let tokenToggle;
+
+// Grid toggle position when 3: highlight on Grid One 3x3; 3 highlight on Grid Two 4x4
+let gridToggle = 3;
 
 // Store the block classes to check which player has placed a token
 let blockClassArr = [];
@@ -42,9 +45,10 @@ if (localStorage !== undefined) {
   playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
   message = JSON.parse(localStorage.getItem('message'));
   tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
+  gridToggle = JSON.parse(localStorage.getItem('gridToggle'));
   blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
   blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
-  // console.log(blockClassArr, blockImageArr);
+  console.log(gridToggle);
 }
 
 
@@ -107,7 +111,7 @@ const playerPlay = function () {
 };
 
 
-/* ----------------------------- Checking Winner ---------------------------- */
+/* -------------------------- Winner  Check ------------------------- */
 
 const winnerCheck = function (playerNumber, className) {
   const $blockClass1 = $('.block').eq(0);
@@ -119,54 +123,136 @@ const winnerCheck = function (playerNumber, className) {
   const $blockClass7 = $('.block').eq(6);
   const $blockClass8 = $('.block').eq(7);
   const $blockClass9 = $('.block').eq(8);
+  const $blockClass10 = $('.block').eq(9);
+  const $blockClass11 = $('.block').eq(10);
+  const $blockClass12 = $('.block').eq(11);
+  const $blockClass13 = $('.block').eq(12);
+  const $blockClass14 = $('.block').eq(13);
+  const $blockClass15 = $('.block').eq(14);
+  const $blockClass16 = $('.block').eq(15);
+  const $blockClass17 = $('.block').eq(16);
+  const $blockClass18 = $('.block').eq(17);
+  const $blockClass19 = $('.block').eq(18);
+  const $blockClass20 = $('.block').eq(19);
+  const $blockClass21 = $('.block').eq(20);
+  const $blockClass22 = $('.block').eq(21);
+  const $blockClass23 = $('.block').eq(22);
+  const $blockClass24 = $('.block').eq(23);
+  const $blockClass25 = $('.block').eq(24);
 
-  if ($blockClass1.hasClass(className) && $blockClass2.hasClass(className) && $blockClass3.hasClass(className)) {
-    $blockClass1.children().attr('src', playerNumber.tokenWin);
-    $blockClass2.children().attr('src', playerNumber.tokenWin);
-    $blockClass3.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass4.hasClass(className) && $blockClass5.hasClass(className) && $blockClass6.hasClass(className)) {
-    $blockClass4.children().attr('src', playerNumber.tokenWin);
-    $blockClass5.children().attr('src', playerNumber.tokenWin);
-    $blockClass6.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass7.hasClass(className) && $blockClass8.hasClass(className) && $blockClass9.hasClass(className)) {
-    $blockClass7.children().attr('src', playerNumber.tokenWin);
-    $blockClass8.children().attr('src', playerNumber.tokenWin);
-    $blockClass9.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass1.hasClass(className) && $blockClass4.hasClass(className) && $blockClass7.hasClass(className)) {
-    $blockClass1.children().attr('src', playerNumber.tokenWin);
-    $blockClass4.children().attr('src', playerNumber.tokenWin);
-    $blockClass7.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass2.hasClass(className) && $blockClass5.hasClass(className) && $blockClass8.hasClass(className)) {
-    $blockClass2.children().attr('src', playerNumber.tokenWin);
-    $blockClass5.children().attr('src', playerNumber.tokenWin);
-    $blockClass8.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass3.hasClass(className) && $blockClass6.hasClass(className) && $blockClass9.hasClass(className)) {
-    $blockClass3.children().attr('src', playerNumber.tokenWin);
-    $blockClass6.children().attr('src', playerNumber.tokenWin);
-    $blockClass9.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass1.hasClass(className) && $blockClass5.hasClass(className) && $blockClass9.hasClass(className)) {
-    $blockClass1.children().attr('src', playerNumber.tokenWin);
-    $blockClass5.children().attr('src', playerNumber.tokenWin);
-    $blockClass9.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else if ($blockClass3.hasClass(className) && $blockClass5.hasClass(className) && $blockClass7.hasClass(className)) {
-    $blockClass3.children().attr('src', playerNumber.tokenWin);
-    $blockClass5.children().attr('src', playerNumber.tokenWin);
-    $blockClass7.children().attr('src', playerNumber.tokenWin);
-    return true;
-  } else {
-    return false;
+  if (gridToggle === 3) {
+    if ($blockClass1.hasClass(className) && $blockClass2.hasClass(className) && $blockClass3.hasClass(className)) {
+      $blockClass1.children().attr('src', playerNumber.tokenWin);
+      $blockClass2.children().attr('src', playerNumber.tokenWin);
+      $blockClass3.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass4.hasClass(className) && $blockClass5.hasClass(className) && $blockClass6.hasClass(className)) {
+      $blockClass4.children().attr('src', playerNumber.tokenWin);
+      $blockClass5.children().attr('src', playerNumber.tokenWin);
+      $blockClass6.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass7.hasClass(className) && $blockClass8.hasClass(className) && $blockClass9.hasClass(className)) {
+      $blockClass7.children().attr('src', playerNumber.tokenWin);
+      $blockClass8.children().attr('src', playerNumber.tokenWin);
+      $blockClass9.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass1.hasClass(className) && $blockClass4.hasClass(className) && $blockClass7.hasClass(className)) {
+      $blockClass1.children().attr('src', playerNumber.tokenWin);
+      $blockClass4.children().attr('src', playerNumber.tokenWin);
+      $blockClass7.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass2.hasClass(className) && $blockClass5.hasClass(className) && $blockClass8.hasClass(className)) {
+      $blockClass2.children().attr('src', playerNumber.tokenWin);
+      $blockClass5.children().attr('src', playerNumber.tokenWin);
+      $blockClass8.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass3.hasClass(className) && $blockClass6.hasClass(className) && $blockClass9.hasClass(className)) {
+      $blockClass3.children().attr('src', playerNumber.tokenWin);
+      $blockClass6.children().attr('src', playerNumber.tokenWin);
+      $blockClass9.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass1.hasClass(className) && $blockClass5.hasClass(className) && $blockClass9.hasClass(className)) {
+      $blockClass1.children().attr('src', playerNumber.tokenWin);
+      $blockClass5.children().attr('src', playerNumber.tokenWin);
+      $blockClass9.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass3.hasClass(className) && $blockClass5.hasClass(className) && $blockClass7.hasClass(className)) {
+      $blockClass3.children().attr('src', playerNumber.tokenWin);
+      $blockClass5.children().attr('src', playerNumber.tokenWin);
+      $blockClass7.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else {
+      return false;
+    }
+  } else if (gridToggle === 4) {
+    if ($blockClass10.hasClass(className) && $blockClass11.hasClass(className) && $blockClass12.hasClass(className) && $blockClass13.hasClass(className)) {
+      $blockClass10.children().attr('src', playerNumber.tokenWin);
+      $blockClass11.children().attr('src', playerNumber.tokenWin);
+      $blockClass12.children().attr('src', playerNumber.tokenWin);
+      $blockClass13.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass14.hasClass(className) && $blockClass15.hasClass(className) && $blockClass16.hasClass(className) && $blockClass17.hasClass(className)) {
+      $blockClass14.children().attr('src', playerNumber.tokenWin);
+      $blockClass15.children().attr('src', playerNumber.tokenWin);
+      $blockClass16.children().attr('src', playerNumber.tokenWin);
+      $blockClass17.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass18.hasClass(className) && $blockClass19.hasClass(className) && $blockClass20.hasClass(className) && $blockClass21.hasClass(className)) {
+      $blockClass18.children().attr('src', playerNumber.tokenWin);
+      $blockClass19.children().attr('src', playerNumber.tokenWin);
+      $blockClass20.children().attr('src', playerNumber.tokenWin);
+      $blockClass21.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass22.hasClass(className) && $blockClass23.hasClass(className) && $blockClass24.hasClass(className) && $blockClass25.hasClass(className)) {
+      $blockClass22.children().attr('src', playerNumber.tokenWin);
+      $blockClass23.children().attr('src', playerNumber.tokenWin);
+      $blockClass24.children().attr('src', playerNumber.tokenWin);
+      $blockClass25.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass10.hasClass(className) && $blockClass11.hasClass(className) && $blockClass12.hasClass(className) && $blockClass13.hasClass(className)) {
+      $blockClass10.children().attr('src', playerNumber.tokenWin);
+      $blockClass11.children().attr('src', playerNumber.tokenWin);
+      $blockClass12.children().attr('src', playerNumber.tokenWin);
+      $blockClass13.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass14.hasClass(className) && $blockClass15.hasClass(className) && $blockClass16.hasClass(className) && $blockClass17.hasClass(className)) {
+      $blockClass14.children().attr('src', playerNumber.tokenWin);
+      $blockClass15.children().attr('src', playerNumber.tokenWin);
+      $blockClass16.children().attr('src', playerNumber.tokenWin);
+      $blockClass17.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass18.hasClass(className) && $blockClass19.hasClass(className) && $blockClass20.hasClass(className) && $blockClass21.hasClass(className)) {
+      $blockClass18.children().attr('src', playerNumber.tokenWin);
+      $blockClass19.children().attr('src', playerNumber.tokenWin);
+      $blockClass20.children().attr('src', playerNumber.tokenWin);
+      $blockClass21.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass22.hasClass(className) && $blockClass23.hasClass(className) && $blockClass24.hasClass(className) && $blockClass25.hasClass(className)) {
+      $blockClass22.children().attr('src', playerNumber.tokenWin);
+      $blockClass23.children().attr('src', playerNumber.tokenWin);
+      $blockClass24.children().attr('src', playerNumber.tokenWin);
+      $blockClass25.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass10.hasClass(className) && $blockClass15.hasClass(className) && $blockClass20.hasClass(className) && $blockClass25.hasClass(className)) {
+      $blockClass10.children().attr('src', playerNumber.tokenWin);
+      $blockClass15.children().attr('src', playerNumber.tokenWin);
+      $blockClass20.children().attr('src', playerNumber.tokenWin);
+      $blockClass25.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else if ($blockClass13.hasClass(className) && $blockClass16.hasClass(className) && $blockClass19.hasClass(className) && $blockClass22.hasClass(className)) {
+      $blockClass13.children().attr('src', playerNumber.tokenWin);
+      $blockClass16.children().attr('src', playerNumber.tokenWin);
+      $blockClass19.children().attr('src', playerNumber.tokenWin);
+      $blockClass22.children().attr('src', playerNumber.tokenWin);
+      return true;
+    } else {
+      return false;
+    }
   }
 };
 
 
-/* ------------------------------ Tie Function ------------------------------ */
+/* ---------------------------- Tie Check --------------------------- */
 
 const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, classNameTwo) {
   const $blockClass1 = $('.block').eq(0);
@@ -178,10 +264,34 @@ const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, class
   const $blockClass7 = $('.block').eq(6);
   const $blockClass8 = $('.block').eq(7);
   const $blockClass9 = $('.block').eq(8);
+  const $blockClass10 = $('.block').eq(9);
+  const $blockClass11 = $('.block').eq(10);
+  const $blockClass12 = $('.block').eq(11);
+  const $blockClass13 = $('.block').eq(12);
+  const $blockClass14 = $('.block').eq(13);
+  const $blockClass15 = $('.block').eq(14);
+  const $blockClass16 = $('.block').eq(15);
+  const $blockClass17 = $('.block').eq(16);
+  const $blockClass18 = $('.block').eq(17);
+  const $blockClass19 = $('.block').eq(18);
+  const $blockClass20 = $('.block').eq(19);
+  const $blockClass21 = $('.block').eq(20);
+  const $blockClass22 = $('.block').eq(21);
+  const $blockClass23 = $('.block').eq(22);
+  const $blockClass24 = $('.block').eq(23);
+  const $blockClass25 = $('.block').eq(24);
   // Check if all blocks have been clicked
-  if ($blockClass1.children().attr('src') !== "" && $blockClass2.children().attr('src') !== "" && $blockClass3.children().attr('src') !== "" && $blockClass4.children().attr('src') !== "" && $blockClass5.children().attr('src') !== "" && $blockClass6.children().attr('src') !== "" && $blockClass7.children().attr('src') !== "" && $blockClass8.children().attr('src') !== "" && $blockClass9.children().attr('src') !== "") {
-    if (!winnerCheck(playerNumberOne, classNameOne) && !winnerCheck(playerNumberTwo, classNameTwo)) {
-      return true;
+  if (gridToggle === 3) {
+    if ($blockClass1.children().attr('src') !== "" && $blockClass2.children().attr('src') !== "" && $blockClass3.children().attr('src') !== "" && $blockClass4.children().attr('src') !== "" && $blockClass5.children().attr('src') !== "" && $blockClass6.children().attr('src') !== "" && $blockClass7.children().attr('src') !== "" && $blockClass8.children().attr('src') !== "" && $blockClass9.children().attr('src') !== "") {
+      if (!winnerCheck(playerNumberOne, classNameOne) && !winnerCheck(playerNumberTwo, classNameTwo)) {
+        return true;
+      }
+    }
+  } else if (gridToggle === 4) {
+    if ($blockClass10.children().attr('src') !== "" && $blockClass11.children().attr('src') !== "" && $blockClass12.children().attr('src') !== "" && $blockClass13.children().attr('src') !== "" && $blockClass14.children().attr('src') !== "" && $blockClass15.children().attr('src') !== "" && $blockClass16.children().attr('src') !== "" && $blockClass17.children().attr('src') !== "" && $blockClass18.children().attr('src') !== "" && $blockClass19.children().attr('src') !== "" && $blockClass20.children().attr('src') !== "" && $blockClass21.children().attr('src') !== "" && $blockClass22.children().attr('src') !== "" && $blockClass23.children().attr('src') !== "" && $blockClass24.children().attr('src') !== "" && $blockClass25.children().attr('src') !== "") {
+      if (!winnerCheck(playerNumberOne, classNameOne) && !winnerCheck(playerNumberTwo, classNameTwo)) {
+        return true;
+      }
     }
   }
 };
@@ -227,6 +337,7 @@ const showMenu = function () {
   $('.menu-container').height('100%');
   // When slidedown checking which Token Set is highlight 1: Set One 2: Set Two
   tokenToggleCheck();
+  gridToggleCheck();
 };
 
 const hideMenu = function () {
@@ -246,7 +357,7 @@ const tokenToggleCheck = function () {
   }
 };
 
-/* ------------------------------ Select Tokens ----------------------------- */
+/* ------------------------------ Change Tokens ----------------------------- */
 
 const changeToTokenSetOne = function () {
   // Add highlighted border to itself; remove from its sibling
@@ -277,6 +388,46 @@ const changeToTokenSetTwo = function () {
   restartGame();
   hideMenu();
 }
+
+/* --------------------- Checking Grid Toggle Position --------------------- */
+
+const gridToggleCheck = function () {
+  if (gridToggle === 3) {
+    // Add highlighted border to itself; remove from its sibling
+    $('.container-one').css('display', 'block');
+    $('.container-two').css('display', 'none');
+  } else if (gridToggle === 4) {
+    $('.container-one').css('display', 'none');
+    $('.container-two').css('display', 'block');
+  }
+};
+
+/* ------------------------------- Change Grid ------------------------------ */
+
+const changeToGridOne = function () {
+  // Add highlighted border to itself; remove from its sibling
+  $(this).addClass('set-selected');
+  $(this).siblings().removeClass('set-selected');
+  $('.container-one').css('display', 'block');
+  $('.container-two').css('display', 'none');
+  gridToggle = 3;
+  saveGame();
+  restartGame();
+  hideMenu();
+}
+
+const changeToGridTwo = function () {
+  // Add highlighted border to itself; remove from its sibling
+  $(this).addClass('set-selected');
+  $(this).siblings().removeClass('set-selected');
+  $('.container-one').css('display', 'none');
+  $('.container-two').css('display', 'block');
+  gridToggle = 4;
+  saveGame();
+  restartGame();
+  hideMenu();
+}
+
 
 /* ---------------------------- Restart The Game ---------------------------- */
 
@@ -356,6 +507,7 @@ const saveGame = function () {
   localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
   localStorage.setItem('message', JSON.stringify(message));
   localStorage.setItem('tokenToggle', JSON.stringify(tokenToggle));
+  localStorage.setItem('gridToggle', JSON.stringify(gridToggle));
 };
 
 
@@ -371,6 +523,10 @@ $(document).ready(function () {
   $('.player-two-result-number').text(playerTwo.result);
   $('.tie-result-number').text(tieResult);
   $('.message h2').text(message);
+  tokenToggleCheck();
+  gridToggleCheck();
+
+
 
 
   $('.block').on('click', playerPlay);
@@ -392,8 +548,14 @@ $(document).ready(function () {
 
 
   $('.token-set-two').on('click', changeToTokenSetTwo);
+  
+  
+  $('.grid-one').on('click', changeToGridOne);
 
 
+  $('.grid-two').on('click', changeToGridTwo);
+  
+  
   $('.new-game').on('click', newGame);
 
 
@@ -410,6 +572,4 @@ $(document).ready(function () {
       $('.block').eq(j).unbind('mouseenter mouseleave');
     }
   }
-
-
 });

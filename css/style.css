@@ -74,13 +74,17 @@ body {
   background-color: #292929;
 }
 
-.grid-set-one:hover,
-.grid-set-two:hover {
+.grid-one:hover,
+.grid-two:hover {
   background-color: #292929;
 }
 
 .set-selected {
   border-color: #ffffff;
+}
+
+.token-select-container, .grid-select-container {
+  margin-bottom: 40px;
 }
 
 /* New Game */
@@ -174,7 +178,7 @@ body {
   text-align: center;
 }
 
-.container {
+.container-one {
   background-color: #171717;
   margin: 30px auto;
   width: 540px;
@@ -182,6 +186,17 @@ body {
   position: relative;
   padding: 10px;
   border-radius: 40px;
+}
+
+.container-two {
+  background-color: #171717;
+  margin: 30px auto;
+  width: 540px;
+  height: 540px;
+  position: relative;
+  padding: 10px;
+  border-radius: 40px;
+  display: none;
 }
 
 .flex-container {
@@ -201,8 +216,24 @@ body {
   border-radius: 20px;
 }
 
+.flex-item-two {
+  width: 115px;
+  height: 115px;
+  background-color: #292929;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 115px;
+  border-radius: 20px;
+}
+
 .flex-item img {
   vertical-align: middle;
+}
+
+.flex-item-two img {
+  vertical-align: middle;
+  width: 80px;
 }
 
 .player1, .player2 {

@@ -21,6 +21,7 @@ let playerTurn = 1;
 // Counts for tie times
 let tieResult = 0;
 
+let message = 'Enjoy the game!';
 
 /* --------------------------- Load Local Storage --------------------------- */
 
@@ -29,7 +30,8 @@ if (localStorage !== undefined) {
   tieResult = JSON.parse(localStorage.getItem('tieResult'));
   playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
   playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
-  console.log(playerOne, tieResult, playerTwo, playerTurn);
+  message = JSON.parse(localStorage.getItem('message'));
+  console.log(playerOne, tieResult, playerTwo, playerTurn, message);
 }
 
 
@@ -47,7 +49,8 @@ const playerPlay = function () {
       if (winnerCheck(playerOne, 'player1')) {
         playerOne.result += 1;
         // Update the message
-        $('.message h2').text(playerOne.name + ' wins!');
+        message = playerOne.name + ' wins!';
+        $('.message h2').text(message);
         // saveGame();
         gameOver();
       };
@@ -60,8 +63,8 @@ const playerPlay = function () {
       if (winnerCheck(playerTwo, 'player2')) {
         playerTwo.result += 1;
         // Update the message
-        $('.message h2').text(playerTwo.name + ' wins!');
-        // saveGame();
+        message = playerTwo.name + ' wins!';
+        $('.message h2').text(message);
         gameOver();
       };
     }
@@ -70,8 +73,8 @@ const playerPlay = function () {
     if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
       tieResult += 1;
       // Update the message
-      $('.message h2').text('It is a tie.');
-      // saveGame();
+      message = 'It is a tie.';
+      $('.message h2').text(message);
       gameOver();
     };
     saveGame();
@@ -162,7 +165,7 @@ const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, class
 };
 
 
-/* ------------------------------ Stop The Game ----------------------------- */
+/* ------------------------------ Game Over ----------------------------- */
 
 const gameOver = function () {
   $('.player-one-result-number').text(playerOne.result);
@@ -195,7 +198,7 @@ const restartGame = function () {
   $('.block').hover(blockMouseEnter, blockMouseLeave);
   $('.block').css('background', '#292929');
   $('.block').css('cursor', 'pointer');
-  $('.message h2').text('It is Player One\'s turn.');
+  $('.message h2').text('Enjoy the game!');
   playerTurn = 1;
 };
 
@@ -221,6 +224,7 @@ const changeToTokenSetOne = function () {
   playerTwo.tokenWin = 'assets/token_cross_win.svg';
   saveGame();
   restartGame();
+  hideMenu();
 }
 
 const changeToTokenSetTwo = function () {
@@ -232,6 +236,7 @@ const changeToTokenSetTwo = function () {
   playerTwo.tokenWin = 'assets/token_fish_win.svg';
   saveGame();
   restartGame();
+  hideMenu();
 }
 
 /* -------------------------------- Save Game ------------------------------- */
@@ -241,10 +246,24 @@ const saveGame = function() {
   localStorage.setItem('tieResult', JSON.stringify(tieResult));
   localStorage.setItem('playerTwo', JSON.stringify(playerTwo));
   localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
+  localStorage.setItem('message', JSON.stringify(message));
 };
 
 
-
+/* -------------------------------- New Game -------------------------------- */
+const newGame = function() {
+  playerOne.result = 0;
+  playerTwo.result = 0;
+  playerTurn = 1;
+  tieResult = 0;  
+  restartGame();
+  hideMenu();
+  $('.player-one-result').text(playerOne.name);
+  $('.player-two-result').text(playerTwo.name);
+  $('.player-one-result-number').text(playerOne.result);
+  $('.player-two-result-number').text(playerTwo.result);
+  $('.tie-result-number').text(tieResult);
+};
 
 
 $(document).ready(function () {
@@ -255,6 +274,8 @@ $(document).ready(function () {
   $('.player-one-result-number').text(playerOne.result);
   $('.player-two-result-number').text(playerTwo.result);
   $('.tie-result-number').text(tieResult);
+
+
 
   /* ------------------------------ Event Handler ----------------------------- */
 
@@ -277,6 +298,8 @@ $(document).ready(function () {
 
 
   $('.token-set-two').on('click', changeToTokenSetTwo);
+
+  $('.new-game').on('click', newGame);
 
 
 });

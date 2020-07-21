@@ -35,7 +35,7 @@ $(document).ready(function () {
         $('.message h2').text('It is ' + playerTwo.name + '\'s turn.');
         // Checking if Player One wins
         if(winnerCheck(playerOne, 'player1')) {
-          playerOneResult += 1;
+          playerOne.result += 1;
           // Update the message
           $('.message h2').text(playerOne.name + ' wins!');
           gameOver();
@@ -47,7 +47,7 @@ $(document).ready(function () {
         $('.message h2').text('It is ' + playerOne.name + '\'s turn.');
         // Checking if Player Two wins
         if (winnerCheck(playerTwo, 'player2')) {
-          playerTwoResult += 1;
+          playerTwo.result += 1;
           // Update the message
           $('.message h2').text(playerTwo.name + ' wins!');
           gameOver();
@@ -150,12 +150,14 @@ $(document).ready(function () {
   /* ------------------------------ Stop The Game ----------------------------- */
 
   const gameOver = function() {
-    $('.player-one-result-number').text(playerOneResult);
-    $('.player-two-result-number').text(playerTwoResult);
+    $('.player-one-result-number').text(playerOne.result);
+    $('.player-two-result-number').text(playerTwo.result);
     $('.tie-result-number').text(tieResult);
     $('.block').unbind('click');
     $('.block').unbind('mouseenter mouseleave');
     $('.block').css('cursor', 'default');
+    // Change turn to Player One.
+    playerTurn = 1;
   }; 
 
 
@@ -179,6 +181,7 @@ $(document).ready(function () {
     $('.block').css('background', '#292929');
     $('.block').css('cursor', 'pointer');
     $('.message h2').text('It is Player One\'s turn.');
+    playerTurn = 1;
   };
 
   /* -------------------------------- Show Menu ------------------------------- */
@@ -197,16 +200,27 @@ $(document).ready(function () {
   const changeToTokenSetOne = function() {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
-    playerOne.token = 'assets/token_bone.svg';
-    playerOne.tokenWin = 'assets/token_bone_win.svg';
+    playerOne.token = 'assets/token_circle.svg';
+    playerOne.tokenWin = 'assets/token_circle_win.svg';
+    playerTwo.token = 'assets/token_cross.svg';
+    playerTwo.tokenWin = 'assets/token_cross_win.svg';
+    restartGame();
   }
 
   const changeToTokenSetTwo = function() {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
-    playerOne.token = 'assets/token_fish.svg';
-    playerOne.tokenWin = 'assets/token_fish_win.svg';
+    playerOne.token = 'assets/token_bone.svg';
+    playerOne.tokenWin = 'assets/token_bone_win.svg';
+    playerTwo.token = 'assets/token_fish.svg';
+    playerTwo.tokenWin = 'assets/token_fish_win.svg';
+    restartGame();
   }
+
+  /* ------------------------------ Local Storage ----------------------------- */
+
+  
+
 
   /* ------------------------------ Event Handler ----------------------------- */
 
@@ -227,7 +241,7 @@ $(document).ready(function () {
 
   $('.token-set-one').on('click', changeToTokenSetOne);
 
-  
+
   $('.token-set-two').on('click', changeToTokenSetTwo);
 
 

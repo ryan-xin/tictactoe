@@ -77,9 +77,31 @@ body {
   border-color: #ffffff;
 }
 
-/* Change Player Name */
+/* New Game */
 
+.new-game {
+  margin-top: 40px;
+}
 
+.new-game-button {
+  font-size: 20px;
+  font-weight: bold;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  width: 100%;
+  line-height: 20px;
+  border-radius: 10px;
+  border: 2px solid #171717;
+  outline: none;
+  background-color: #171717;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.new-game-button:hover {
+  border-color:  #ffffff;
+  background-color: #292929;
+}
 
 /* ------------------------------- Navigation ------------------------------- */
 

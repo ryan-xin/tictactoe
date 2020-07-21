@@ -23,6 +23,9 @@ let tieResult = 0;
 
 let message = 'Enjoy the game!';
 
+// Token toggle position
+let tokenToggle;
+
 /* --------------------------- Load Local Storage --------------------------- */
 
 if (localStorage !== undefined) {
@@ -31,7 +34,8 @@ if (localStorage !== undefined) {
   playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
   playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
   message = JSON.parse(localStorage.getItem('message'));
-  console.log(playerOne, tieResult, playerTwo, playerTurn, message);
+  tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
+  console.log(playerTurn);
 }
 
 
@@ -53,6 +57,7 @@ const playerPlay = function () {
         $('.message h2').text(message);
         // saveGame();
         gameOver();
+        return;
       };
     } else if (playerTurn === -1) { // Player Two player
       $(this).children().attr('src', playerTwo.token);
@@ -65,7 +70,9 @@ const playerPlay = function () {
         // Update the message
         message = playerTwo.name + ' wins!';
         $('.message h2').text(message);
+        // saveGame();
         gameOver();
+        return;
       };
     }
     playerTurn *= (-1); // Change turn to another player
@@ -176,6 +183,7 @@ const gameOver = function () {
   $('.block').css('cursor', 'default');
   // Change turn to Player One.
   playerTurn = 1;
+  saveGame();
 };
 
 
@@ -206,12 +214,25 @@ const restartGame = function () {
 
 const showMenu = function () {
   $('.menu-container').height('100%');
+  tokenToggleCheck();
 };
 
 
 const hideMenu = function () {
   $('.menu-container').height('0%');
 }
+
+/* --------------------- checking Token Toggle Position --------------------- */
+
+const tokenToggleCheck = function() {
+  if (tokenToggle === 1) {
+    $('.token-set-one').addClass('set-selected');
+    $('.token-set-two').removeClass('set-selected');  
+  } else if (tokenToggle === 2) {
+    $('.token-set-two').addClass('set-selected');
+    $('.token-set-one').removeClass('set-selected'); 
+  }
+};
 
 /* ------------------------------ Select Tokens ----------------------------- */
 
@@ -222,6 +243,7 @@ const changeToTokenSetOne = function () {
   playerOne.tokenWin = 'assets/token_circle_win.svg';
   playerTwo.token = 'assets/token_cross.svg';
   playerTwo.tokenWin = 'assets/token_cross_win.svg';
+  tokenToggle = 1;
   saveGame();
   restartGame();
   hideMenu();
@@ -234,6 +256,7 @@ const changeToTokenSetTwo = function () {
   playerOne.tokenWin = 'assets/token_bone_win.svg';
   playerTwo.token = 'assets/token_fish.svg';
   playerTwo.tokenWin = 'assets/token_fish_win.svg';
+  tokenToggle = 2;
   saveGame();
   restartGame();
   hideMenu();
@@ -247,10 +270,12 @@ const saveGame = function() {
   localStorage.setItem('playerTwo', JSON.stringify(playerTwo));
   localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
   localStorage.setItem('message', JSON.stringify(message));
+  localStorage.setItem('tokenToggle', JSON.stringify(tokenToggle));
 };
 
 
 /* -------------------------------- New Game -------------------------------- */
+
 const newGame = function() {
   playerOne.result = 0;
   playerTwo.result = 0;

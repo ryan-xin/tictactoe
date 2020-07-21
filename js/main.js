@@ -27,6 +27,12 @@ let message = 'Enjoy the game!';
 // Token toggle position when 1: highlight on Set One; -1 highlight on Set Two
 let tokenToggle;
 
+// Store the block classes to check which player has placed a token
+let blockClassArr = [];
+
+// Store the block img > src to check which player has placed a token
+let blockImageArr = [];
+
 /* --------------------------- Load Local Storage --------------------------- */
 
 if (localStorage !== undefined) {
@@ -36,7 +42,9 @@ if (localStorage !== undefined) {
   playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
   message = JSON.parse(localStorage.getItem('message'));
   tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
-  // console.log(playerTurn);
+  blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
+  blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
+  // console.log(blockClassArr, blockImageArr);
 }
 
 
@@ -176,23 +184,29 @@ const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, class
   }
 };
 
+/* -------------------------- Storing block class -------------------------- */
 
-/* ------------------------------ Game Over ----------------------------- */
+const blockClassChecker = function() {
+  for (let i = 0; i < $('.block').length; i++ ) {
+    if ($('.block').eq(i).hasClass('player1')) {
+      blockClassArr.push('player1');
+    } else if ($('.block').eq(i).hasClass('player2')) {
+      blockClassArr.push('player2');
+    } else {
+      blockClassArr.push('');
+    }
+  }
+  // console.log(blockClassArr);
+};
 
-const gameOver = function () {
-  // Show winner counts
-  $('.player-one-result-number').text(playerOne.result);
-  $('.player-two-result-number').text(playerTwo.result);
-  $('.tie-result-number').text(tieResult);
-  // Make all blocks not clickable
-  $('.block').unbind('click');
-  // Remove hover effect
-  $('.block').unbind('mouseenter mouseleave');
-  // Remove pointer effect
-  $('.block').css('cursor', 'default');
-  // Change turn to Player One.
-  playerTurn = 1;
-  saveGame();
+/* --------------------------- Storing block images --------------------------- */
+
+const blockImageChecker = function () {
+  for (let i = 0; i < $('.block').length; i++) {
+    imageSrc = $('.block').eq(i).children().attr('src');
+    blockImageArr.push(imageSrc);
+  }
+  // console.log(blockImageArr);
 };
 
 
@@ -205,24 +219,6 @@ const blockMouseLeave = function () {
   $(this).css('background', '#292929');
 };
 
-
-/* ---------------------------- Restart The Game ---------------------------- */
-
-const restartGame = function () {
-  // Clear all blocks img 
-  $('.block').children().attr('src', '');
-  // Clear all blocks class
-  $('.block').removeClass('player1').removeClass('player2');
-  // Enable click event
-  $('.block').on('click', playerPlay);
-  // Enable hover event
-  $('.block').hover(blockMouseEnter, blockMouseLeave);
-  $('.block').css('background', '#292929');
-  $('.block').css('cursor', 'pointer');
-  $('.message h2').text('Enjoy the game!');
-  playerTurn = 1;
-};
-
 /* -------------------------------- Show Menu ------------------------------- */
 
 const showMenu = function () {
@@ -231,21 +227,20 @@ const showMenu = function () {
   tokenToggleCheck();
 };
 
-
 const hideMenu = function () {
   $('.menu-container').height('0%');
 }
 
 /* --------------------- Checking Token Toggle Position --------------------- */
 
-const tokenToggleCheck = function() {
+const tokenToggleCheck = function () {
   if (tokenToggle === 1) {
     // Add highlighted border to itself; remove from its sibling
     $('.token-set-one').addClass('set-selected');
-    $('.token-set-two').removeClass('set-selected');  
+    $('.token-set-two').removeClass('set-selected');
   } else if (tokenToggle === 2) {
     $('.token-set-two').addClass('set-selected');
-    $('.token-set-one').removeClass('set-selected'); 
+    $('.token-set-one').removeClass('set-selected');
   }
 };
 
@@ -281,16 +276,23 @@ const changeToTokenSetTwo = function () {
   hideMenu();
 }
 
-/* -------------------------------- Save Game ------------------------------- */
+/* ---------------------------- Restart The Game ---------------------------- */
 
-const saveGame = function() {
-  localStorage.setItem('playerOne', JSON.stringify(playerOne));
-  localStorage.setItem('tieResult', JSON.stringify(tieResult));
-  localStorage.setItem('playerTwo', JSON.stringify(playerTwo));
-  localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
-  localStorage.setItem('message', JSON.stringify(message));
-  localStorage.setItem('tokenToggle', JSON.stringify(tokenToggle));
+const restartGame = function () {
+  // Clear all blocks img 
+  $('.block').children().attr('src', '');
+  // Clear all blocks class
+  $('.block').removeClass('player1').removeClass('player2');
+  // Enable click event
+  $('.block').on('click', playerPlay);
+  // Enable hover event
+  $('.block').hover(blockMouseEnter, blockMouseLeave);
+  $('.block').css('background', '#292929');
+  $('.block').css('cursor', 'pointer');
+  $('.message h2').text('Enjoy the game!');
+  playerTurn = 1;
 };
+
 
 
 /* -------------------------------- New Game -------------------------------- */
@@ -301,6 +303,7 @@ const newGame = function() {
   playerTwo.result = 0;
   playerTurn = 1;
   tieResult = 0;  
+  tokenToggle = 1;
   restartGame();
   hideMenu();
   $('.player-one-result').text(playerOne.name);
@@ -310,20 +313,53 @@ const newGame = function() {
   $('.tie-result-number').text(tieResult);
 };
 
+/* ------------------------------ Game Over ----------------------------- */
+
+const gameOver = function () {
+  // Show winner counts
+  $('.player-one-result-number').text(playerOne.result);
+  $('.player-two-result-number').text(playerTwo.result);
+  $('.tie-result-number').text(tieResult);
+  // Make all blocks not clickable
+  $('.block').unbind('click');
+  // Remove hover effect
+  $('.block').unbind('mouseenter mouseleave');
+  // Remove pointer effect
+  $('.block').css('cursor', 'default');
+  // Change turn to Player One.
+  playerTurn = 1;
+  saveGame();
+};
+
+/* -------------------------------- Save Game ------------------------------- */
+
+const saveGame = function () {
+  blockClassArr = [];
+  blockClassChecker();
+  blockImageArr = [];
+  blockImageChecker();
+  localStorage.setItem('blockClassArr', JSON.stringify(blockClassArr));
+  localStorage.setItem('blockImageArr', JSON.stringify(blockImageArr));
+  localStorage.setItem('playerOne', JSON.stringify(playerOne));
+  localStorage.setItem('tieResult', JSON.stringify(tieResult));
+  localStorage.setItem('playerTwo', JSON.stringify(playerTwo));
+  localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
+  localStorage.setItem('message', JSON.stringify(message));
+  localStorage.setItem('tokenToggle', JSON.stringify(tokenToggle));
+};
+
 
 /* ------------------------------ Event Handler ----------------------------- */
 
 
 $(document).ready(function () {
 
-
+  // Reset all data;
   $('.player-one-result').text(playerOne.name);
   $('.player-two-result').text(playerTwo.name);
   $('.player-one-result-number').text(playerOne.result);
   $('.player-two-result-number').text(playerTwo.result);
   $('.tie-result-number').text(tieResult);
-
-
 
 
   $('.block').on('click', playerPlay);
@@ -346,7 +382,23 @@ $(document).ready(function () {
 
   $('.token-set-two').on('click', changeToTokenSetTwo);
 
+
   $('.new-game').on('click', newGame);
+
+
+  // Load saved game play board
+  for (let j = 0; j < $('.block').length; j++) {
+    if (blockClassArr[j] === 'player1' || blockClassArr[j] === 'player2') {
+      // Show saved class on each block
+      $('.block').eq(j).addClass(blockClassArr[j]);
+      // Show saved block image src on each block
+      $('.block').eq(j).children().attr('src', blockImageArr[j]);
+
+      // Disable hover effect and pointer
+      $('.block').eq(j).css('cursor', 'default');
+      $('.block').eq(j).unbind('mouseenter mouseleave');
+    }
+  }
 
 
 });

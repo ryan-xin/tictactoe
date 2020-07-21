@@ -199,6 +199,10 @@ body {
   vertical-align: middle;
 }
 
+.player1, .player2 {
+  background-color: #454545;
+}
+
 /* --------------------------------- Footer --------------------------------- */
 
 .footer-container {

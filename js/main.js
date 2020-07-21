@@ -21,9 +21,10 @@ let playerTurn = 1;
 // Counts for tie times
 let tieResult = 0;
 
+// Starter message
 let message = 'Enjoy the game!';
 
-// Token toggle position
+// Token toggle position when 1: highlight on Set One; -1 highlight on Set Two
 let tokenToggle;
 
 /* --------------------------- Load Local Storage --------------------------- */
@@ -35,7 +36,7 @@ if (localStorage !== undefined) {
   playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
   message = JSON.parse(localStorage.getItem('message'));
   tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
-  console.log(playerTurn);
+  // console.log(playerTurn);
 }
 
 
@@ -45,7 +46,9 @@ const playerPlay = function () {
   // Check if there is already a token. When 'src' empty run place a token
   if ($(this).children().attr('src') === "") {
     if (playerTurn === 1) { // Player One plays
+      // Place Player One's token image
       $(this).children().attr('src', playerOne.token);
+      // Add player1 class to the block
       $(this).addClass('player1');
       // Update the message
       $('.message h2').text('It is ' + playerTwo.name + '\'s turn.');
@@ -60,7 +63,9 @@ const playerPlay = function () {
         return;
       };
     } else if (playerTurn === -1) { // Player Two player
+      // Place Player Two's token image
       $(this).children().attr('src', playerTwo.token);
+      // Add player2 class to the block
       $(this).addClass('player2');
       // Update the message
       $('.message h2').text('It is ' + playerOne.name + '\'s turn.');
@@ -175,11 +180,15 @@ const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, class
 /* ------------------------------ Game Over ----------------------------- */
 
 const gameOver = function () {
+  // Show winner counts
   $('.player-one-result-number').text(playerOne.result);
   $('.player-two-result-number').text(playerTwo.result);
   $('.tie-result-number').text(tieResult);
+  // Make all blocks not clickable
   $('.block').unbind('click');
+  // Remove hover effect
   $('.block').unbind('mouseenter mouseleave');
+  // Remove pointer effect
   $('.block').css('cursor', 'default');
   // Change turn to Player One.
   playerTurn = 1;
@@ -200,9 +209,13 @@ const blockMouseLeave = function () {
 /* ---------------------------- Restart The Game ---------------------------- */
 
 const restartGame = function () {
+  // Clear all blocks img 
   $('.block').children().attr('src', '');
+  // Clear all blocks class
   $('.block').removeClass('player1').removeClass('player2');
+  // Enable click event
   $('.block').on('click', playerPlay);
+  // Enable hover event
   $('.block').hover(blockMouseEnter, blockMouseLeave);
   $('.block').css('background', '#292929');
   $('.block').css('cursor', 'pointer');
@@ -214,6 +227,7 @@ const restartGame = function () {
 
 const showMenu = function () {
   $('.menu-container').height('100%');
+  // When slidedown checking which Token Set is highlight 1: Set One 2: Set Two
   tokenToggleCheck();
 };
 
@@ -222,10 +236,11 @@ const hideMenu = function () {
   $('.menu-container').height('0%');
 }
 
-/* --------------------- checking Token Toggle Position --------------------- */
+/* --------------------- Checking Token Toggle Position --------------------- */
 
 const tokenToggleCheck = function() {
   if (tokenToggle === 1) {
+    // Add highlighted border to itself; remove from its sibling
     $('.token-set-one').addClass('set-selected');
     $('.token-set-two').removeClass('set-selected');  
   } else if (tokenToggle === 2) {
@@ -237,8 +252,10 @@ const tokenToggleCheck = function() {
 /* ------------------------------ Select Tokens ----------------------------- */
 
 const changeToTokenSetOne = function () {
+  // Add highlighted border to itself; remove from its sibling
   $(this).addClass('set-selected');
   $(this).siblings().removeClass('set-selected');
+  // Update token imgs
   playerOne.token = 'assets/token_circle.svg';
   playerOne.tokenWin = 'assets/token_circle_win.svg';
   playerTwo.token = 'assets/token_cross.svg';
@@ -250,8 +267,10 @@ const changeToTokenSetOne = function () {
 }
 
 const changeToTokenSetTwo = function () {
+  // Add highlighted border to itself; remove from its sibling
   $(this).addClass('set-selected');
   $(this).siblings().removeClass('set-selected');
+  // Update token imgs
   playerOne.token = 'assets/token_bone.svg';
   playerOne.tokenWin = 'assets/token_bone_win.svg';
   playerTwo.token = 'assets/token_fish.svg';
@@ -276,6 +295,7 @@ const saveGame = function() {
 
 /* -------------------------------- New Game -------------------------------- */
 
+// Clear history
 const newGame = function() {
   playerOne.result = 0;
   playerTwo.result = 0;
@@ -291,6 +311,9 @@ const newGame = function() {
 };
 
 
+/* ------------------------------ Event Handler ----------------------------- */
+
+
 $(document).ready(function () {
 
 
@@ -302,7 +325,6 @@ $(document).ready(function () {
 
 
 
-  /* ------------------------------ Event Handler ----------------------------- */
 
   $('.block').on('click', playerPlay);
 

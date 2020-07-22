@@ -54,7 +54,7 @@ $(document).ready(function () {
   /* --------------------------- Load Local Storage --------------------------- */
   if (localStorageSaved) {
     // Check if the there is data saved in Local Storage
-    if(!(localStorage.playerOne === null)) {
+    if (localStorage.playerOne !== undefined) {
       playerOne = JSON.parse(localStorage.getItem('playerOne'));
       tieResult = JSON.parse(localStorage.getItem('tieResult'));
       playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
@@ -120,8 +120,12 @@ $(document).ready(function () {
         $('.block').eq(i).addClass(blockClassArr[i]);
         // Show saved block image src on each block
         $('.block').eq(i).children().attr('src', blockImageArr[i]);
-        // Disable hover effect and pointer
+        // Set the played block to clicked bg color
+        $('.block').eq(i).css('background', '#454545');
+        // Disable cursor pointer
         $('.block').eq(i).css('cursor', 'default');
+        // Make the block not clickable
+        $('.block').eq(i).css('pointer-events', 'none');;
       }
     }
   }
@@ -182,8 +186,8 @@ $(document).ready(function () {
       };
       saveGame();
       // Remove Hover and Pointer to inform user the clicked block is not clickable
-      $(this).off('mouseenter mouseleave');
       $(this).css('cursor', 'default');
+      $(this).off('mouseenter mouseleave');
     }
   };
 

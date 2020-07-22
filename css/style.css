@@ -34,7 +34,7 @@ body {
 
 .menu-content {
   position: relative;
-  top: 15%;
+  top: 8%;
   width: 560px;
   text-align: center;
   margin: 30px auto;
@@ -42,14 +42,15 @@ body {
   color: #ffffff;
 }
 
-/* Change Tokens & Change Grid */
+/* Change Tokens & Change Grid  & Play Mode */
 
 .menu-content h2 {
   margin-bottom: 20px;
 }
 
 .flex-item-token,
-.flex-item-grid {
+.flex-item-grid,
+.flex-item-mode {
   width: 260px;
   height: 100px;
   background-color: #171717;
@@ -79,13 +80,21 @@ body {
   background-color: #292929;
 }
 
+.mode-one:hover,
+.mode-two:hover {
+  background-color: #292929;
+}
+
 .set-selected {
   border-color: #ffffff;
 }
 
-.token-select-container, .grid-select-container {
+.token-select-container,
+.grid-select-container,
+.mode-select-container {
   margin-bottom: 40px;
 }
+
 
 /* New Game */
 

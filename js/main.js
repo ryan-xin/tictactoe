@@ -1,8 +1,6 @@
-
-  
 /* ----------------------------- Game Variables ----------------------------- */
 
-// Player One Data
+// Player One Data for changing information globally
 let playerOne = {
   name: 'Player One',
   token: 'assets/token_circle.svg',
@@ -10,7 +8,7 @@ let playerOne = {
   result: 0
 };
 
-// Player Two Data
+// Player Two Data for changing information globally
 let playerTwo = {
   name: 'Player Two',
   token: 'assets/token_cross.svg',
@@ -21,13 +19,13 @@ let playerTwo = {
 // When playerTurn = 1 it is Player One's turn. When playerTurn = -1 it is Player Two's turn.
 let playerTurn = 1;
 
-// Counts for tie times
+// Counts for Tie times
 let tieResult = 0;
 
 // Starter message
 let message = 'Enjoy the game!';
 
-// Token toggle position when 1: highlight on Set One; 2 highlight on Set Two
+// Token toggle position when 1: highlight on Token Set One; 2 highlight on Token Set Two
 let tokenToggle = 1;
 
 // Grid toggle position when 3: highlight on Grid One 3x3; 3 highlight on Grid Two 4x4
@@ -42,38 +40,48 @@ let blockImageArr = [];
 // If the game is over: disable all blocks
 let isGameOver = false;
 
+// Check what is the play mode: if it's 1: 1 on 1; if it's 2: vs AI
+let playMode = 1;
+
+// Check human's step in vs AI mode
+let humanStep = 0;
+
 // Check if Local Storage can be used
 let localStorageSaved = true;
+// If not available change to false
 if (localStorage === undefined) {
   localStorageSaved = false;
 }
 
 
+
 $(document).ready(function () {
 
-  /* --------------------------- Load Local Storage --------------------------- */
+  /* --------------------------- Reload Local Storage --------------------------- */
   if (localStorageSaved) {
     // Check if the there is data saved in Local Storage
     if (localStorage.playerOne !== undefined) {
       playerOne = JSON.parse(localStorage.getItem('playerOne'));
-      tieResult = JSON.parse(localStorage.getItem('tieResult'));
       playerTwo = JSON.parse(localStorage.getItem('playerTwo'));
+      tieResult = JSON.parse(localStorage.getItem('tieResult'));
       playerTurn = JSON.parse(localStorage.getItem('playerTurn'));
       message = JSON.parse(localStorage.getItem('message'));
       tokenToggle = JSON.parse(localStorage.getItem('tokenToggle'));
       gridToggle = JSON.parse(localStorage.getItem('gridToggle'));
       isGameOver = JSON.parse(localStorage.getItem('isGameOver'));
+      playMode = JSON.parse(localStorage.getItem('playMode'));
+      humanStep = JSON.parse(localStorage.getItem('humanStep'));
       blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
       blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
       
       // Check if the saved game is over
       if (isGameOver) {
-        // If over disable all block click
+        // If game over disable all block click
         $('.block').css('pointer-events', 'none');
         // Remove pointer effect
         $('.block').css('cursor', 'default');
       }
-  
+      
       // Show saved result on screen
       $('.player-one-result').text(playerOne.name);
       $('.player-two-result').text(playerTwo.name);
@@ -81,7 +89,7 @@ $(document).ready(function () {
       $('.player-two-result-number').text(playerTwo.result);
       $('.tie-result-number').text(tieResult);
       $('.message h2').text(message);
-  
+      
       // Check what token set the saved game use and show in menu
       if (tokenToggle === 1) {
         // Add highlighted border to itself; remove from its sibling
@@ -92,8 +100,8 @@ $(document).ready(function () {
         $('.token-set-two').addClass('set-selected');
         $('.token-set-one').removeClass('set-selected');
       }
-  
-      // Check if the game saved is Grid One 3x3 or Grid Two 4x4
+      
+      // Check if the saved game is Grid One 3x3 or Grid Two 4x4
       if (gridToggle === 3) {
         // Show Grid One 3x3 and hide the other one 
         $('.container-one').css('display', 'block');
@@ -109,87 +117,372 @@ $(document).ready(function () {
         $('.grid-one').removeClass('set-selected');
         $('.grid-two').addClass('set-selected');
       }
-    }
-    
 
-    // Load saved game play board.
-    for (let i = 0; i < $('.block').length; i++) {
-      // Use 'player1' and 'player2' classes to check if this block has been played
-      if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
-        // Show saved class on each block
-        $('.block').eq(i).addClass(blockClassArr[i]);
-        // Show saved block image src on each block
-        $('.block').eq(i).children().attr('src', blockImageArr[i]);
-        // Set the played block to clicked bg color
-        $('.block').eq(i).css('background', '#454545');
-        // Disable cursor pointer
-        $('.block').eq(i).css('cursor', 'default');
-        // Make the block not clickable
-        $('.block').eq(i).css('pointer-events', 'none');;
+      // Check what mode it is
+      // 1 on 1 mode
+      if(playMode === 1) {
+        $('.mode-one').addClass('set-selected');
+        $('.mode-one').siblings().removeClass('set-selected');  
+      // vs AI mode
+      } else if (playMode === 2) {
+        $('.mode-two').addClass('set-selected');
+        $('.mode-two').siblings().removeClass('set-selected');         
+      }
+
+      // Load saved game play board.
+      for (let i = 0; i < $('.block').length; i++) {
+        // Use 'player1' and 'player2' classes to check if this block has been played
+        if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
+          // Show saved class on each block
+          $('.block').eq(i).addClass(blockClassArr[i]);
+          // Show saved block image src on each block
+          $('.block').eq(i).children().attr('src', blockImageArr[i]);
+          // Set the played block to clicked bg color
+          $('.block').eq(i).css('background', '#454545');
+          // Disable cursor pointer
+          $('.block').eq(i).css('cursor', 'default');
+          // Make the block not clickable
+          $('.block').eq(i).css('pointer-events', 'none');;
+        }
       }
     }
   }
 
+
   /* -------------------------- Player Play Function -------------------------- */
 
   const playerPlay = function () {
-    // Check if there is already a token. When 'src' empty run place a token
-    if ($(this).children().attr('src') === "") {
-      if (playerTurn === 1) { // Player One plays
+    // It's 1 on 1 mode
+    if(playMode === 1) {
+      // Check if there is already a token. When 'src' empty run place a token
+      if ($(this).children().attr('src') === "") {
+        if (playerTurn === 1) { // Player One plays
+          // Place Player One's token image
+          $(this).children().attr('src', playerOne.token);
+          // Add player1 class to the block
+          $(this).addClass('player1');
+          // Update the message
+          message = 'It is ' + playerTwo.name + '\'s turn.';
+          $('.message h2').text(message);
+          // Checking if Player One wins
+          if (winnerCheck(playerOne, 'player1')) {
+            // Update Player One win result
+            playerOne.result += 1;
+            // Update the message
+            message = playerOne.name + ' wins!';
+            $('.message h2').text(message);
+            // saveGame();
+            gameOver();
+            return;
+          };
+        } else if (playerTurn === -1) { // Player Two player
+          // Place Player Two's token image
+          $(this).children().attr('src', playerTwo.token);
+          // Add player2 class to the block
+          $(this).addClass('player2');
+          // Update the message
+          message = 'It is ' + playerOne.name + '\'s turn.';
+          $('.message h2').text(message);
+          // Checking if Player Two wins
+          if (winnerCheck(playerTwo, 'player2')) {
+            // Update Player Two win result
+            playerTwo.result += 1;
+            // Update the message
+            message = playerTwo.name + ' wins!';
+            $('.message h2').text(message);
+            // saveGame();
+            gameOver();
+            return;
+          };
+        }
+        playerTurn *= (-1); // Change turn to another player
+        // Check if it is a tie.
+        if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
+          // Update tie result
+          tieResult += 1;
+          // Update the message
+          message = 'It is a tie.';
+          $('.message h2').text(message);
+          gameOver();
+        };
+        saveGame();
+        // Remove Hover and Pointer to inform user the clicked block is not clickable
+        $(this).css('cursor', 'default');
+        $(this).off('mouseenter mouseleave');
+      }
+    } else if (playMode === 2) { // Vs AI mode
+      // Check if there is already a token. When 'src' empty run place a token
+      if ($(this).children().attr('src') === "") {       
         // Place Player One's token image
         $(this).children().attr('src', playerOne.token);
         // Add player1 class to the block
-        $(this).addClass('player1');
-        // Update the message
-        message = 'It is ' + playerTwo.name + '\'s turn.';
-        $('.message h2').text(message);
-        // Checking if Player One wins
+        $(this).addClass('player1');  
+        // Update humanStep to call AI step
+        humanStep += 1; 
         if (winnerCheck(playerOne, 'player1')) {
-          // isGameOver = true;
+          // Make humanStep 0 when player wins
+          humanStep = 0;
+          // Update tie result
           playerOne.result += 1;
           // Update the message
-          message = playerOne.name + ' wins!';
+          message = playerOne.name + ' saved human!!!';
           $('.message h2').text(message);
           // saveGame();
           gameOver();
-          return;
-        };
-      } else if (playerTurn === -1) { // Player Two player
-        // Place Player Two's token image
-        $(this).children().attr('src', playerTwo.token);
-        // Add player2 class to the block
-        $(this).addClass('player2');
-        // Update the message
-        message = 'It is ' + playerOne.name + '\'s turn.';
-        $('.message h2').text(message);
-        // Checking if Player Two wins
-        if (winnerCheck(playerTwo, 'player2')) {
-          // isGameOver = true;
-          playerTwo.result += 1;
-          // Update the message
-          message = playerTwo.name + ' wins!';
-          $('.message h2').text(message);
-          // saveGame();
-          gameOver();
-          return;
-        };
+          // Exit the whole play function
+          return;     
+        }
+        // Save game data if human doesn't win
+        saveGame();
+        // Remove Hover and Pointer to inform user the clicked block is not clickable
+        $(this).css('cursor', 'default');
+        $(this).off('mouseenter mouseleave');
       }
-      playerTurn *= (-1); // Change turn to another player
-      // Check if it is a tie.
-      if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
-        // isGameOver = true;
+      // AI Plays
+      if(humanStep === 1) {
+        aiStepOne();
+      } else if(humanStep === 2) {
+        aiStepTwo();
+      } else if(humanStep === 3) {
+        aiStepThree();
+      } else if(humanStep === 4) {
+        aiStepFour();
+      } else if(humanStep === 5) {
+        // When reach's AI's 'fifth' step means it's a tie
+        humanStep = 0;
+        // Update tie result
         tieResult += 1;
         // Update the message
-        message = 'It is a tie.';
+        message = 'Human needs you! Play again!';
         $('.message h2').text(message);
-        gameOver();
-      };
-      saveGame();
-      // Remove Hover and Pointer to inform user the clicked block is not clickable
-      $(this).css('cursor', 'default');
-      $(this).off('mouseenter mouseleave');
+        gameOver();  
+      }
+      saveGame();      
     }
   };
+
+
+  /* --------------------------------- AI PLAY -------------------------------- */
+
+  // Use block class 'player1' or 'player2' to check who wins
+  const aiStepOne = function() {
+    // Clear block class array first
+    blockClassArr = [];
+    // Check current situation on the board(check if the block has 'player1' 'player2');
+    blockClassChecker();
+    // Check the human places token on the fifth block( index = 4 )
+    if (blockClassArr[4] === "player1") {
+      // If it is occupied place token on the first block
+      aiPlay(0); 
+      // If not place on the fifth block
+    } else if (blockClassArr[4] === "") {
+      aiPlay(4); 
+    }
+  };
+
+  const aiStepTwo = function() {
+    // Clear block class array first
+    blockClassArr = [];
+    blockClassChecker();
+    // Some special conditions need to be checked for AI step two
+    if (blockClassArr[4] === 'player1' && blockClassArr[8] === 'player1') {
+      aiPlay(2); 
+    } else if (blockClassArr[0] === 'player1' && blockClassArr[8] === 'player1') {
+      aiPlay(1); 
+    } else if (blockClassArr[1] === 'player1' && blockClassArr[3] === 'player1') {
+      aiPlay(0); 
+    } else if (blockClassArr[1] === 'player1' && blockClassArr[5] === 'player1') {
+      aiPlay(2);
+    } else if (blockClassArr[7] === 'player1' && blockClassArr[5] === 'player1') {
+      aiPlay(8);
+    } else if (blockClassArr[7] === 'player1' && blockClassArr[3] === 'player1') {
+      aiPlay(6);
+    } else {
+      // AI is not able to win on its second step 
+      aiDefence();
+    }
+  };
+
+  const aiStepThree = function () {
+    // Clear block class array first
+    blockClassArr = [];
+    blockClassChecker();
+    // From the third step, AI is able to win. So call aiAttack first
+    aiAttack();
+    // Check if AI wins
+    if (winnerCheck(playerTwo, 'player2')) {
+      // Update AI win result
+      playerTwo.result += 1;
+      // Update the message
+      message = 'AI controls the world!';
+      $('.message h2').text(message);
+      // saveGame();
+      gameOver();
+      return;  
+    }
+    // If there is no winning block then defence
+    aiDefence();
+  };
+  
+  const aiStepFour = function () {
+    // Clear block class array first
+    blockClassArr = [];
+    blockClassChecker();
+    aiAttack();
+    if (winnerCheck(playerTwo, 'player2')) {
+      // Update AI win result
+      playerTwo.result += 1;
+      // Update the message
+      message = 'AI controls the world!';
+      $('.message h2').text(message);
+      // saveGame();
+      gameOver();
+      return;  
+    }
+    aiDefence();
+  };
+
+
+  /* ----------------------------- AI Attack Play ----------------------------- */
+  // If there are two AI tokens on a line or diagonal then place token on the other blank block
+  const aiAttack = function() {
+    // Checking self win block and place token on it
+    if (blockClassArr[0] === 'player2' && blockClassArr[1] === 'player2' && blockClassArr[2] === "") {
+      aiPlay(2); 
+    } else if (blockClassArr[2] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[1] === "") {
+      aiPlay(1); 
+    } else if (blockClassArr[1] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[3] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[5] === "") {
+      aiPlay(5);
+    } else if (blockClassArr[5] === 'player2' && blockClassArr[3] === 'player2' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player2' && blockClassArr[5] === 'player2' && blockClassArr[3] === "") {
+      aiPlay(3);
+    } else if (blockClassArr[6] === 'player2' && blockClassArr[7] === 'player2' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[7] === "") {
+      aiPlay(7);
+    } else if (blockClassArr[7] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[0] === 'player2' && blockClassArr[3] === 'player2' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[6] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[3] === "") {
+      aiPlay(3);
+    } else if (blockClassArr[3] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[1] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[7] === "") {
+      aiPlay(7);
+    } else if (blockClassArr[7] === 'player2' && blockClassArr[1] === 'player2' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player2' && blockClassArr[7] === 'player2' && blockClassArr[1] === "") {
+      aiPlay(1);
+    } else if (blockClassArr[2] === 'player2' && blockClassArr[5] === 'player2' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[5] === "") {
+      aiPlay(5);
+    } else if (blockClassArr[5] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[2] === "") {
+      aiPlay(2);
+    } else if (blockClassArr[0] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[2] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[6] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[2] === "") {
+      aiPlay(2);
+    }
+  };
+
+
+  /* ----------------------------- AI Defence Play ---------------------------- */
+  // If there are two Human tokens on a line or diagonal then place token on the other blank block
+  const aiDefence = function() {
+    // Checking player win block and place token on it
+    if (blockClassArr[0] === 'player1' && blockClassArr[1] === 'player1' && blockClassArr[2] === "") {
+      aiPlay(2); 
+    } else if (blockClassArr[2] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[1] === "") {
+      aiPlay(1); 
+    } else if (blockClassArr[1] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[3] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[5] === "") {
+      aiPlay(5);
+    } else if (blockClassArr[5] === 'player1' && blockClassArr[3] === 'player1' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player1' && blockClassArr[5] === 'player1' && blockClassArr[3] === "") {
+      aiPlay(3);
+    } else if (blockClassArr[6] === 'player1' && blockClassArr[7] === 'player1' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[7] === "") {
+      aiPlay(7);
+    } else if (blockClassArr[7] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[0] === 'player1' && blockClassArr[3] === 'player1' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[6] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[3] === "") {
+      aiPlay(3);
+    } else if (blockClassArr[3] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[1] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[7] === "") {
+      aiPlay(7);
+    } else if (blockClassArr[7] === 'player1' && blockClassArr[1] === 'player1' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player1' && blockClassArr[7] === 'player1' && blockClassArr[1] === "") {
+      aiPlay(1);
+    } else if (blockClassArr[2] === 'player1' && blockClassArr[5] === 'player1' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[5] === "") {
+      aiPlay(5);
+    } else if (blockClassArr[5] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[2] === "") {
+      aiPlay(2);
+    } else if (blockClassArr[0] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[8] === "") {
+      aiPlay(8);
+    } else if (blockClassArr[8] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[0] === "") {
+      aiPlay(0);
+    } else if (blockClassArr[2] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[6] === "") {
+      aiPlay(6);
+    } else if (blockClassArr[6] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[4] === "") {
+      aiPlay(4);
+    } else if (blockClassArr[4] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[2] === "") {
+      aiPlay(2);
+    } else {
+      aiRandom();
+    }
+  };
+
+
+  /* ----------------------------- AI Random Play ----------------------------- */
+  // For 3x3 grid, the first 2 steps are more important. After checking the first two AI only need Attack and Defence. All the other steps will lead to tie. So use random function on Step 3 and Step 4
+  const aiRandom = function () {
+    // AI knowns it's already a tie...
+    for(let i = 0; i < 9; i++) {
+      // Just fill the first blank block
+      if (blockClassArr[i] === "") {
+        aiPlay(i);
+        return;
+      }
+    }
+  };
+
+
+  /* ----------------------------- Ai place token; ---------------------------- */
+
+  const aiPlay = function(num) {
+    // Add class 
+    $('.block').eq(num).addClass('player2');
+    // Add image
+    $('.block').eq(num).children().attr('src', playerTwo.token);
+    // Update block background
+    $('.block').eq(num).css('background', '#454545');
+    $('.block').eq(num).css('cursor', 'default');
+    $('.block').eq(num).off('mouseenter mouseleave'); 
+  }
 
 
   /* -------------------------- Winner  Check ------------------------- */
@@ -293,28 +586,28 @@ $(document).ready(function () {
         $blockClass24.children().attr('src', playerNumber.tokenWin);
         $blockClass25.children().attr('src', playerNumber.tokenWin);
         return true;
-      } else if ($blockClass10.hasClass(className) && $blockClass11.hasClass(className) && $blockClass12.hasClass(className) && $blockClass13.hasClass(className)) {
+      } else if ($blockClass10.hasClass(className) && $blockClass14.hasClass(className) && $blockClass18.hasClass(className) && $blockClass22.hasClass(className)) {
         $blockClass10.children().attr('src', playerNumber.tokenWin);
-        $blockClass11.children().attr('src', playerNumber.tokenWin);
-        $blockClass12.children().attr('src', playerNumber.tokenWin);
-        $blockClass13.children().attr('src', playerNumber.tokenWin);
-        return true;
-      } else if ($blockClass14.hasClass(className) && $blockClass15.hasClass(className) && $blockClass16.hasClass(className) && $blockClass17.hasClass(className)) {
         $blockClass14.children().attr('src', playerNumber.tokenWin);
-        $blockClass15.children().attr('src', playerNumber.tokenWin);
-        $blockClass16.children().attr('src', playerNumber.tokenWin);
-        $blockClass17.children().attr('src', playerNumber.tokenWin);
-        return true;
-      } else if ($blockClass18.hasClass(className) && $blockClass19.hasClass(className) && $blockClass20.hasClass(className) && $blockClass21.hasClass(className)) {
         $blockClass18.children().attr('src', playerNumber.tokenWin);
-        $blockClass19.children().attr('src', playerNumber.tokenWin);
-        $blockClass20.children().attr('src', playerNumber.tokenWin);
-        $blockClass21.children().attr('src', playerNumber.tokenWin);
-        return true;
-      } else if ($blockClass22.hasClass(className) && $blockClass23.hasClass(className) && $blockClass24.hasClass(className) && $blockClass25.hasClass(className)) {
         $blockClass22.children().attr('src', playerNumber.tokenWin);
+        return true;
+      } else if ($blockClass11.hasClass(className) && $blockClass15.hasClass(className) && $blockClass19.hasClass(className) && $blockClass23.hasClass(className)) {
+        $blockClass11.children().attr('src', playerNumber.tokenWin);
+        $blockClass15.children().attr('src', playerNumber.tokenWin);
+        $blockClass19.children().attr('src', playerNumber.tokenWin);
         $blockClass23.children().attr('src', playerNumber.tokenWin);
+        return true;
+      } else if ($blockClass12.hasClass(className) && $blockClass16.hasClass(className) && $blockClass20.hasClass(className) && $blockClass24.hasClass(className)) {
+        $blockClass12.children().attr('src', playerNumber.tokenWin);
+        $blockClass16.children().attr('src', playerNumber.tokenWin);
+        $blockClass20.children().attr('src', playerNumber.tokenWin);
         $blockClass24.children().attr('src', playerNumber.tokenWin);
+        return true;
+      } else if ($blockClass13.hasClass(className) && $blockClass17.hasClass(className) && $blockClass21.hasClass(className) && $blockClass25.hasClass(className)) {
+        $blockClass13.children().attr('src', playerNumber.tokenWin);
+        $blockClass17.children().attr('src', playerNumber.tokenWin);
+        $blockClass21.children().attr('src', playerNumber.tokenWin);
         $blockClass25.children().attr('src', playerNumber.tokenWin);
         return true;
       } else if ($blockClass10.hasClass(className) && $blockClass15.hasClass(className) && $blockClass20.hasClass(className) && $blockClass25.hasClass(className)) {
@@ -382,6 +675,7 @@ $(document).ready(function () {
     }
   };
 
+
   /* -------------------------- Storing block class -------------------------- */
 
   const blockClassChecker = function() {
@@ -437,10 +731,11 @@ $(document).ready(function () {
   }
 
 
-
   /* ------------------------------ Change Tokens ----------------------------- */
 
   const changeToTokenSetOne = function () {
+    restartGame();
+    hideMenu();
     // Add highlighted border to itself; remove from its sibling
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
@@ -451,11 +746,11 @@ $(document).ready(function () {
     playerTwo.tokenWin = 'assets/token_cross_win.svg';
     tokenToggle = 1;
     saveGame();
-    restartGame();
-    hideMenu();
   }
 
   const changeToTokenSetTwo = function () {
+    restartGame();
+    hideMenu();
     // Add highlighted border to itself; remove from its sibling
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
@@ -466,14 +761,14 @@ $(document).ready(function () {
     playerTwo.tokenWin = 'assets/token_fish_win.svg';
     tokenToggle = 2;
     saveGame();
-    restartGame();
-    hideMenu();
   }
 
 
   /* ------------------------------- Change Grid ------------------------------ */
 
   const changeToGridOne = function () {
+    restartGame();
+    hideMenu();
     // Add highlighted border to itself; remove from its sibling
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
@@ -482,11 +777,11 @@ $(document).ready(function () {
     $('.container-two').css('display', 'none');
     gridToggle = 3;
     saveGame();
-    restartGame();
-    hideMenu();
   }
 
   const changeToGridTwo = function () {
+    restartGame();
+    hideMenu();
     // Add highlighted border to itself; remove from its sibling
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
@@ -495,10 +790,36 @@ $(document).ready(function () {
     $('.container-two').css('display', 'block');
     gridToggle = 4;
     saveGame();
-    restartGame();
-    hideMenu();
   }
 
+  /* ---------------------------- Change Play Mode ---------------------------- */
+
+  const changeToOneOnOne = function() {
+    newGame();
+    hideMenu();
+    // Add highlighted border to itself; remove from its sibling
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    playMode = 1;
+    playerTwo.name = 'Player Two';
+    $('.player-two-result').text(playerTwo.name);
+    saveGame();
+  };
+
+  const changeToVsRobot = function() {
+    newGame();
+    hideMenu();
+    // Add highlighted border to itself; remove from its sibling
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    playMode = 2;
+    playerTwo.name = 'AI';
+    $('.player-two-result').text(playerTwo.name);
+    // Update the message
+    message = 'Save human!!!';
+    $('.message h2').text(message); 
+    saveGame();
+  };
 
   /* ---------------------------- Restart The Game ---------------------------- */
 
@@ -518,11 +839,11 @@ $(document).ready(function () {
     $('.message h2').text(message);
     playerTurn = 1;
     isGameOver = false;
+    humanStep = 0;
     blockClassArr = [];
     blockImageArr = [];
     saveGame();
   };
-
 
 
   /* -------------------------------- New Game -------------------------------- */
@@ -534,7 +855,8 @@ $(document).ready(function () {
     playerTwo.result = 0;
     isGameOver = false;
     playerTurn = 1;
-    tieResult = 0;  
+    tieResult = 0; 
+    humanStep = 0; 
     saveGame();
     hideMenu();
     $('.player-one-result').text(playerOne.name);
@@ -561,6 +883,7 @@ $(document).ready(function () {
     // Change turn to Player One.
     isGameOver = true;
     playerTurn = 1;
+    humanStep = 0;
     saveGame();
   };
 
@@ -575,21 +898,25 @@ $(document).ready(function () {
     blockImageArr = [];
     // Save current block images into blockImageChecker
     blockImageChecker();
-    localStorage.setItem('blockClassArr', JSON.stringify(blockClassArr));
-    localStorage.setItem('blockImageArr', JSON.stringify(blockImageArr));
     localStorage.setItem('playerOne', JSON.stringify(playerOne));
-    localStorage.setItem('tieResult', JSON.stringify(tieResult));
     localStorage.setItem('playerTwo', JSON.stringify(playerTwo));
+    localStorage.setItem('tieResult', JSON.stringify(tieResult));
     localStorage.setItem('playerTurn', JSON.stringify(playerTurn));
     localStorage.setItem('message', JSON.stringify(message));
     localStorage.setItem('tokenToggle', JSON.stringify(tokenToggle));
     localStorage.setItem('gridToggle', JSON.stringify(gridToggle));
     localStorage.setItem('isGameOver', JSON.stringify(isGameOver));
+    localStorage.setItem('playMode', JSON.stringify(playMode));
+    localStorage.setItem('humanStep', JSON.stringify(humanStep));
+    localStorage.setItem('blockClassArr', JSON.stringify(blockClassArr));
+    localStorage.setItem('blockImageArr', JSON.stringify(blockImageArr));
   };
 
 
-  /* ------------------------------ Event Handler ----------------------------- */
 
+  
+
+  /* ------------------------------ Event Handler ----------------------------- */
 
   $('.block').on('click', playerPlay);
 
@@ -616,6 +943,12 @@ $(document).ready(function () {
 
 
   $('.grid-two').on('click', changeToGridTwo);
+
+
+  $('.mode-one').on('click', changeToOneOnOne);
+
+
+  $('.mode-two').on('click', changeToVsRobot);
   
   
   $('.new-game').on('click', newGame);

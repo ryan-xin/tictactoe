@@ -467,7 +467,6 @@ $(document).ready(function () {
   }
 
 
-
   /* ------------------------------- Change Grid ------------------------------ */
 
   const changeToGridOne = function () {

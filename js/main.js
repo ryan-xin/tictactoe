@@ -239,6 +239,7 @@ $(document).ready(function () {
         $(this).off('mouseenter mouseleave');
       }
       // AI Plays
+      // TODO: Use if conditions to check grid
       if(humanStep === 1) {
         aiStepOne();
       } else if(humanStep === 2) {
@@ -914,7 +915,7 @@ $(document).ready(function () {
 
 
 
-  
+
 
   /* ------------------------------ Event Handler ----------------------------- */
 

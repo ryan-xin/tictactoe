@@ -53,9 +53,61 @@ if (localStorage === undefined) {
   localStorageSaved = false;
 }
 
+// For testing & debugging
+// localStorage.clear();
+
+let firebaseSaved = false;
+
 
 
 $(document).ready(function () {
+
+  
+  // Declare all blocks. There are two boards: 3x3 and 4x4
+  const $blockClass1 = $('.block').eq(0);
+  const $blockClass2 = $('.block').eq(1);
+  const $blockClass3 = $('.block').eq(2);
+  const $blockClass4 = $('.block').eq(3);
+  const $blockClass5 = $('.block').eq(4);
+  const $blockClass6 = $('.block').eq(5);
+  const $blockClass7 = $('.block').eq(6);
+  const $blockClass8 = $('.block').eq(7);
+  const $blockClass9 = $('.block').eq(8);
+  const $blockClass10 = $('.block').eq(9);
+  const $blockClass11 = $('.block').eq(10);
+  const $blockClass12 = $('.block').eq(11);
+  const $blockClass13 = $('.block').eq(12);
+  const $blockClass14 = $('.block').eq(13);
+  const $blockClass15 = $('.block').eq(14);
+  const $blockClass16 = $('.block').eq(15);
+  const $blockClass17 = $('.block').eq(16);
+  const $blockClass18 = $('.block').eq(17);
+  const $blockClass19 = $('.block').eq(18);
+  const $blockClass20 = $('.block').eq(19);
+  const $blockClass21 = $('.block').eq(20);
+  const $blockClass22 = $('.block').eq(21);
+  const $blockClass23 = $('.block').eq(22);
+  const $blockClass24 = $('.block').eq(23);
+  const $blockClass25 = $('.block').eq(24);
+
+  /* -------------------------- Firebase Initializing ------------------------- */
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAIDLIxe5bPM-MZdBon39fcDUPZ9mPk1ag",
+    authDomain: "tic-tac-toe-329b9.firebaseapp.com",
+    databaseURL: "https://tic-tac-toe-329b9.firebaseio.com",
+    projectId: "tic-tac-toe-329b9",
+    storageBucket: "tic-tac-toe-329b9.appspot.com",
+    messagingSenderId: "24513296905",
+    appId: "1:24513296905:web:c25c4648a07ec0569a56d8",
+    measurementId: "G-FQH67FMW2K"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+
+  
+
 
   /* --------------------------- Reload Local Storage --------------------------- */
   if (localStorageSaved) {
@@ -152,6 +204,124 @@ $(document).ready(function () {
     }
   }
 
+  /* ----------------------- Retrieve data from Firebase ---------------------- */
+
+    if (playMode === 3) {
+      firebaseSaved = true;
+      // localStorage.clear();
+    }
+
+    if (firebaseSaved) {
+      console.log('Firebase loading');
+
+      database.ref('/playMode').on('value', function (snap) {
+        playMode = snap.val();
+      });
+
+      database.ref('/playerOne').on('value', function (snap) {
+        playerOne = snap.val();
+        $('.player-one-result').text(playerOne.name);
+        $('.player-one-result-number').text(playerOne.result);
+      });
+
+      database.ref('/playerTwo').on('value', function (snap) {
+        playerTwo = snap.val();
+        $('.player-two-result').text(playerTwo.name);
+        $('.player-two-result-number').text(playerTwo.result);
+      });
+
+      database.ref('/tieResult').on('value', function (snap) {
+        tieResult = snap.val();
+        $('.tie-result-number').text(tieResult);
+      });
+
+      database.ref('/playerTurn').on('value', function (snap) {
+        playerTurn = snap.val();
+      });
+
+      database.ref('/message').on('value', function (snap) {
+        message = snap.val();
+        $('.message h2').text(message);
+      });
+
+      database.ref('/tokenToggle').on('value', function (snap) {
+        tokenToggle = snap.val();
+        // Check what token set the saved game use and show in menu
+        if (tokenToggle === 1) {
+          // Add highlighted border to itself; remove from its sibling
+          $('.token-set-one').addClass('set-selected');
+          $('.token-set-two').removeClass('set-selected');
+        } else if (tokenToggle === 2) {
+          // Add highlighted border to itself; remove from its sibling. And show in menu
+          $('.token-set-two').addClass('set-selected');
+          $('.token-set-one').removeClass('set-selected');
+        }
+      });
+
+      database.ref('/gridToggle').on('value', function (snap) {
+        gridToggle = snap.val();
+        // Check if the saved game is Grid One 3x3 or Grid Two 4x4
+        if (gridToggle === 3) {
+          // Show Grid One 3x3 and hide the other one 
+          $('.container-one').css('display', 'block');
+          $('.container-two').css('display', 'none');
+          // Add highlighted border to itself; remove from its sibling
+          $('.grid-one').addClass('set-selected');
+          $('.grid-two').removeClass('set-selected');
+        } else if (gridToggle === 4) {
+          // Show Grid Two 4x4 and hide the other one 
+          $('.container-one').css('display', 'none');
+          $('.container-two').css('display', 'block');
+          // Add highlighted border to itself; remove from its sibling. And show in menu
+          $('.grid-one').removeClass('set-selected');
+          $('.grid-two').addClass('set-selected');
+        }
+      });
+
+      database.ref('/isGameOver').on('value', function (snap) {
+        isGameOver = snap.val();
+        // Check if the saved game is over
+        if (isGameOver) {
+          // If game over disable all block click
+          $('.block').css('pointer-events', 'none');
+          // Remove pointer effect
+          $('.block').css('cursor', 'default');
+        }
+      });
+
+      database.ref('/blockClassArr').on('value', function (snap) {
+        console.log(snap.val());
+        blockClassArr = snap.val();
+        for (let i = 0; i < $('.block').length; i++) {
+          // Use 'player1' and 'player2' classes to check if this block has been played
+          if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
+            // Show saved class on each block
+            $('.block').eq(i).addClass(blockClassArr[i]);
+            // Show saved block image src on each block
+            $('.block').eq(i).children().attr('src', blockImageArr[i]);
+            // Set the played block to clicked bg color
+            $('.block').eq(i).css('background', '#454545');
+            // Disable cursor pointer
+            $('.block').eq(i).css('cursor', 'default');
+            // Make the block not clickable
+            $('.block').eq(i).css('pointer-events', 'none');;
+          }
+        }
+      });
+
+      database.ref('/blockImageArr').on('value', function (snap) {
+        console.log(snap.val());
+        blockImageArr = snap.val();
+        for (let i = 0; i < $('.block').length; i++) {
+          // Use 'player1' and 'player2' classes to check if this block has been played
+          if (!(blockImageArr[i] === '')) {
+            // Show saved block image src on each block
+            $('.block').eq(i).children().attr('src', blockImageArr[i]);
+          }
+        }
+      });
+    }
+  
 
   /* -------------------------- Player Play Function -------------------------- */
 
@@ -243,7 +413,7 @@ $(document).ready(function () {
         $(this).off('mouseenter mouseleave');
       }
       // AI Plays
-      // TODO: Use if conditions to check grid
+      // Use if conditions to check grid
       if(humanStep === 1) {
         aiStepOne();
       } else if(humanStep === 2) {
@@ -263,13 +433,76 @@ $(document).ready(function () {
         gameOver();  
       }
       saveGame();      
+    } else if (playMode === 3) {
+        saveFirebase();
+      // Check if there is already a token. When 'src' empty run place a token
+      if ($(this).children().attr('src') === "") {
+        if (playerTurn === 1) { // Player One plays
+          // Place Player One's token image
+          $(this).children().attr('src', playerOne.token);
+          // Add player1 class to the block
+          $(this).addClass('player1');
+          // Update the message
+          message = 'It is ' + playerTwo.name + '\'s turn.';
+          $('.message h2').text(message);
+          // Checking if Player One wins
+          if (winnerCheck(playerOne, 'player1')) {
+            // Update Player One win result
+            playerOne.result += 1;
+            // Update the message
+            message = playerOne.name + ' wins!';
+            $('.message h2').text(message);
+            // saveGame();
+            gameOver();
+            saveFirebase();
+            return;
+          };
+        } else if (playerTurn === -1) { // Player Two player
+          // Place Player Two's token image
+          $(this).children().attr('src', playerTwo.token);
+          // Add player2 class to the block
+          $(this).addClass('player2');
+          // Update the message
+          message = 'It is ' + playerOne.name + '\'s turn.';
+          $('.message h2').text(message);
+          // Checking if Player Two wins
+          if (winnerCheck(playerTwo, 'player2')) {
+            // Update Player Two win result
+            playerTwo.result += 1;
+            // Update the message
+            message = playerTwo.name + ' wins!';
+            $('.message h2').text(message);
+            // saveGame();
+            gameOver();
+            saveFirebase();
+            return;
+          };
+        }
+        playerTurn *= (-1); // Change turn to another player
+        // Check if it is a tie.
+        if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
+          // Update tie result
+          tieResult += 1;
+          // Update the message
+          message = 'It is a tie.';
+          $('.message h2').text(message);
+          gameOver();
+          saveFirebase();
+        };
+        saveGame();    //TODO:
+        // Remove Hover and Pointer to inform user the clicked block is not clickable
+        $(this).css('cursor', 'default');
+        $(this).off('mouseenter mouseleave');
+        saveFirebase();
+      }
     }
   };
 
 
+
   /* --------------------------------- AI PLAY -------------------------------- */
 
-  // Use block class 'player1' or 'player2' to check who wins
+  // AI step one
   const aiStepOne = function() {
     // Clear block class array first
     blockClassArr = [];
@@ -285,6 +518,7 @@ $(document).ready(function () {
     }
   };
 
+  // AI step two
   const aiStepTwo = function() {
     // Clear block class array first
     blockClassArr = [];
@@ -308,6 +542,7 @@ $(document).ready(function () {
     }
   };
 
+  // AI step three
   const aiStepThree = function () {
     // Clear block class array first
     blockClassArr = [];
@@ -329,6 +564,7 @@ $(document).ready(function () {
     aiDefence();
   };
   
+  // AI step four
   const aiStepFour = function () {
     // Clear block class array first
     blockClassArr = [];
@@ -476,7 +712,7 @@ $(document).ready(function () {
   };
 
 
-  /* ----------------------------- Ai place token; ---------------------------- */
+  /* ----------------------------- AI place token; ---------------------------- */
 
   const aiPlay = function(num) {
     // Add class 
@@ -493,31 +729,6 @@ $(document).ready(function () {
   /* -------------------------- Winner  Check ------------------------- */
   // VERY LONG CODE! Just check every possible winner conditions
   const winnerCheck = function (playerNumber, className) {
-    const $blockClass1 = $('.block').eq(0);
-    const $blockClass2 = $('.block').eq(1);
-    const $blockClass3 = $('.block').eq(2);
-    const $blockClass4 = $('.block').eq(3);
-    const $blockClass5 = $('.block').eq(4);
-    const $blockClass6 = $('.block').eq(5);
-    const $blockClass7 = $('.block').eq(6);
-    const $blockClass8 = $('.block').eq(7);
-    const $blockClass9 = $('.block').eq(8);
-    const $blockClass10 = $('.block').eq(9);
-    const $blockClass11 = $('.block').eq(10);
-    const $blockClass12 = $('.block').eq(11);
-    const $blockClass13 = $('.block').eq(12);
-    const $blockClass14 = $('.block').eq(13);
-    const $blockClass15 = $('.block').eq(14);
-    const $blockClass16 = $('.block').eq(15);
-    const $blockClass17 = $('.block').eq(16);
-    const $blockClass18 = $('.block').eq(17);
-    const $blockClass19 = $('.block').eq(18);
-    const $blockClass20 = $('.block').eq(19);
-    const $blockClass21 = $('.block').eq(20);
-    const $blockClass22 = $('.block').eq(21);
-    const $blockClass23 = $('.block').eq(22);
-    const $blockClass24 = $('.block').eq(23);
-    const $blockClass25 = $('.block').eq(24);
 
     // For Grid One 3x3
     if (gridToggle === 3) {
@@ -637,31 +848,6 @@ $(document).ready(function () {
   /* ---------------------------- Tie Check --------------------------- */
   // Shorter than above! Just check if all blocks have been player and there is no winner
   const tieCheck = function (playerNumberOne, classNameOne, playerNumberTwo, classNameTwo) {
-    const $blockClass1 = $('.block').eq(0);
-    const $blockClass2 = $('.block').eq(1);
-    const $blockClass3 = $('.block').eq(2);
-    const $blockClass4 = $('.block').eq(3);
-    const $blockClass5 = $('.block').eq(4);
-    const $blockClass6 = $('.block').eq(5);
-    const $blockClass7 = $('.block').eq(6);
-    const $blockClass8 = $('.block').eq(7);
-    const $blockClass9 = $('.block').eq(8);
-    const $blockClass10 = $('.block').eq(9);
-    const $blockClass11 = $('.block').eq(10);
-    const $blockClass12 = $('.block').eq(11);
-    const $blockClass13 = $('.block').eq(12);
-    const $blockClass14 = $('.block').eq(13);
-    const $blockClass15 = $('.block').eq(14);
-    const $blockClass16 = $('.block').eq(15);
-    const $blockClass17 = $('.block').eq(16);
-    const $blockClass18 = $('.block').eq(17);
-    const $blockClass19 = $('.block').eq(18);
-    const $blockClass20 = $('.block').eq(19);
-    const $blockClass21 = $('.block').eq(20);
-    const $blockClass22 = $('.block').eq(21);
-    const $blockClass23 = $('.block').eq(22);
-    const $blockClass24 = $('.block').eq(23);
-    const $blockClass25 = $('.block').eq(24);
     // Check if all blocks have been clicked
     if (gridToggle === 3) {
       if ($blockClass1.children().attr('src') !== "" && $blockClass2.children().attr('src') !== "" && $blockClass3.children().attr('src') !== "" && $blockClass4.children().attr('src') !== "" && $blockClass5.children().attr('src') !== "" && $blockClass6.children().attr('src') !== "" && $blockClass7.children().attr('src') !== "" && $blockClass8.children().attr('src') !== "" && $blockClass9.children().attr('src') !== "") {
@@ -751,6 +937,7 @@ $(document).ready(function () {
     playerTwo.tokenWin = 'assets/token_cross_win.svg';
     tokenToggle = 1;
     saveGame();
+    saveFirebase();
   }
 
   const changeToTokenSetTwo = function () {
@@ -766,6 +953,7 @@ $(document).ready(function () {
     playerTwo.tokenWin = 'assets/token_fish_win.svg';
     tokenToggle = 2;
     saveGame();
+    saveFirebase();
   }
 
 
@@ -782,6 +970,7 @@ $(document).ready(function () {
     $('.container-two').css('display', 'none');
     gridToggle = 3;
     saveGame();
+    saveFirebase();
   }
 
   const changeToGridTwo = function () {
@@ -795,23 +984,29 @@ $(document).ready(function () {
     $('.container-two').css('display', 'block');
     gridToggle = 4;
     saveGame();
+    saveFirebase();
   }
 
   /* ---------------------------- Change Play Mode ---------------------------- */
 
   const changeToOneOnOne = function() {
+    localStorage.clear();
+    // restartGame();
     newGame();
     hideMenu();
     // Add highlighted border to itself; remove from its sibling
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 1;
-    playerTwo.name = 'Player Two';
-    $('.player-two-result').text(playerTwo.name);
-    saveGame();
+    clearFirebase();
+    // playerTwo.name = 'Player Two';
+    // $('.player-two-result').text(playerTwo.name);
+    // saveGame();
+    // localStorage.clear();
   };
 
   const changeToVsRobot = function() {
+    localStorage.clear();
     newGame();
     hideMenu();
     // Add highlighted border to itself; remove from its sibling
@@ -823,10 +1018,13 @@ $(document).ready(function () {
     // Update the message
     message = 'Save human!!!';
     $('.message h2').text(message); 
-    saveGame();
+    clearFirebase();
+    // saveGame();
+    // localStorage.clear();
   };
 
   const changeToOnline = function () {
+    localStorage.clear();
     newGame();
     hideMenu();
     // Add highlighted border to itself; remove from its sibling
@@ -836,6 +1034,8 @@ $(document).ready(function () {
     playerTwo.name = 'Player Two';
     $('.player-two-result').text(playerTwo.name);
     saveGame();
+    saveFirebase();
+    // localStorage.clear();
   };
 
 
@@ -848,7 +1048,6 @@ $(document).ready(function () {
     $('.block').removeClass('player1').removeClass('player2');
     // Enable click event
     $('.block').css('pointer-events', 'auto');
-    // $('.block').on('click', playerPlay);
     // Enable hover event
     $('.block').hover(blockMouseEnter, blockMouseLeave);
     $('.block').css('background', '#292929');
@@ -861,6 +1060,8 @@ $(document).ready(function () {
     blockClassArr = [];
     blockImageArr = [];
     saveGame();
+    // clearFirebase();
+    saveFirebase();
   };
 
 
@@ -875,13 +1076,14 @@ $(document).ready(function () {
     playerTurn = 1;
     tieResult = 0; 
     humanStep = 0; 
-    saveGame();
     hideMenu();
     $('.player-one-result').text(playerOne.name);
     $('.player-two-result').text(playerTwo.name);
     $('.player-one-result-number').text(playerOne.result);
     $('.player-two-result-number').text(playerTwo.result);
     $('.tie-result-number').text(tieResult);
+    localStorage.clear();
+    clearFirebase();
   };
 
   /* ------------------------------ Game Over ----------------------------- */
@@ -903,6 +1105,7 @@ $(document).ready(function () {
     playerTurn = 1;
     humanStep = 0;
     saveGame();
+    // clearFirebase();
   };
 
   /* -------------------------------- Save Game ------------------------------- */
@@ -931,8 +1134,41 @@ $(document).ready(function () {
   };
 
 
+  /* -------------------------- Save data to Firebase ------------------------- */
+
+  const saveFirebase = function () {
+    database.ref('/playMode').set(playMode);
+    database.ref('/playerOne').set(playerOne);
+    database.ref('/playerTwo').set(playerTwo);
+    database.ref('/tieResult').set(tieResult);
+    database.ref('/playerTurn').set(playerTurn);
+    database.ref('/message').set(message);
+    database.ref('/tokenToggle').set(tokenToggle);
+    database.ref('/gridToggle').set(gridToggle);
+    database.ref('/isGameOver').set(isGameOver);
+    blockClassArr = [];
+    blockClassChecker();
+    database.ref('/blockClassArr').set(blockClassArr)
+    blockImageArr = [];
+    blockImageChecker();
+    database.ref('/blockImageArr').set(blockImageArr)
+  };
 
 
+
+  /* ------------------------------- Clear data ------------------------------- */
+
+  const clearFirebase = function () {
+    database.ref('/').remove();
+  };
+
+
+
+
+
+
+
+  
 
   /* ------------------------------ Event Handler ----------------------------- */
 

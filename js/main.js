@@ -40,7 +40,7 @@ let blockImageArr = [];
 // If the game is over: disable all blocks
 let isGameOver = false;
 
-// Check what is the play mode: if it's 1: 1 on 1; if it's 2: vs AI
+// Check what is the play mode: If it's 1: 1 on 1; If it's 2: vs AI; If it's 3: on line
 let playMode = 1;
 
 // Check human's step in vs AI mode
@@ -126,7 +126,11 @@ $(document).ready(function () {
       // vs AI mode
       } else if (playMode === 2) {
         $('.mode-two').addClass('set-selected');
-        $('.mode-two').siblings().removeClass('set-selected');         
+        $('.mode-two').siblings().removeClass('set-selected');  
+      // Online game       
+      } else if (playMode === 3) {
+        $('.mode-three').addClass('set-selected');
+        $('.mode-three').siblings().removeClass('set-selected');
       }
 
       // Load saved game play board.
@@ -822,6 +826,19 @@ $(document).ready(function () {
     saveGame();
   };
 
+  const changeToOnline = function () {
+    newGame();
+    hideMenu();
+    // Add highlighted border to itself; remove from its sibling
+    $(this).addClass('set-selected');
+    $(this).siblings().removeClass('set-selected');
+    playMode = 3;
+    playerTwo.name = 'Player Two';
+    $('.player-two-result').text(playerTwo.name);
+    saveGame();
+  };
+
+
   /* ---------------------------- Restart The Game ---------------------------- */
 
   const restartGame = function () {
@@ -951,7 +968,10 @@ $(document).ready(function () {
 
   $('.mode-two').on('click', changeToVsRobot);
   
+
+  $('.mode-three').on('click', changeToOnline);
   
+
   $('.new-game').on('click', newGame);
 
 

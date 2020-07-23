@@ -49,9 +49,20 @@ body {
 }
 
 .flex-item-token,
-.flex-item-grid,
-.flex-item-mode {
+.flex-item-grid {
   width: 260px;
+  height: 100px;
+  background-color: #171717;
+  margin: 10px;
+  cursor: pointer;
+  text-align: center;
+  line-height: 96px;
+  border-radius: 20px;
+  border:2px solid #171717;
+}
+
+.flex-item-mode {
+  width: 165px;
   height: 100px;
   background-color: #171717;
   margin: 10px;
@@ -81,7 +92,8 @@ body {
 }
 
 .mode-one:hover,
-.mode-two:hover {
+.mode-two:hover,
+.mode-three:hover {
   background-color: #292929;
 }
 

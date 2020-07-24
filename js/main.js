@@ -850,7 +850,7 @@ $(document).ready(function () {
     $(this).siblings().removeClass('set-selected');
     // Hide Grid One 3x3, show Grid One 4x4
     $('.container-one').css('display', 'none');
-    $('.container-two').height('display', 'block');
+    $('.container-two').css('display', 'block');
     gridToggle = 4;
     saveGame();
     saveFirebase();

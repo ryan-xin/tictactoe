@@ -26,12 +26,13 @@ You could play it [here.](https://ryan-xin.github.io/tictactoe/)
 
 * 4x4 AI mode is not working. Still needs to write the MiniMax algorithm;
 * Still need to add the a feature to control player turn during online game.
+* White border on Safari when click New Game or Restart
 
-## Tech Used ##
+### Tech Used ###
 
 HTML; CSS; JavaScript; jQuery; Local Storage; Firebase.
 
-## Acknowledgements ##
+### Acknowledgements ###
 
 * Some of the code is not too long to understand;
 * Still need to make my code less repetitive;

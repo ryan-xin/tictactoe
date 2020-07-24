@@ -947,6 +947,7 @@ $(document).ready(function () {
     $('.player-two-result-number').text(playerTwo.result);
     $('.tie-result-number').text(tieResult);
     localStorage.clear();
+    saveFirebase();
   };
 
   /* ------------------------------ Game Over ----------------------------- */

@@ -850,7 +850,7 @@ $(document).ready(function () {
     $(this).siblings().removeClass('set-selected');
     // Hide Grid One 3x3, show Grid One 4x4
     $('.container-one').css('display', 'none');
-    $('.container-two').css('display', 'block');
+    $('.container-two').height('display', 'block');
     gridToggle = 4;
     saveGame();
     saveFirebase();
@@ -901,8 +901,22 @@ $(document).ready(function () {
     $('.player-two-result').text(playerTwo.name);
     saveGame();
     saveFirebase();
+    // Show Copy URL modal
+    $('.online-modal-background').height('100%');
   };
 
+
+  /* -------------------------------- Copy Url -------------------------------- */
+
+  const copyUrl = function() {
+    $('.online-modal-background').height('0%');
+    // Copy url to clipboard
+    let $temp = $('<input>');
+    $("body").append($temp);
+    $temp.val($('.url-address').text()).select();
+    document.execCommand("copy");
+    $temp.remove();
+  };
 
   /* ---------------------------- Restart The Game ---------------------------- */
 
@@ -1203,5 +1217,7 @@ $(document).ready(function () {
 
   $('.new-game').on('click', newGame);
 
+ 
+  $('.copy-url-button').on('click', copyUrl);
 
 });

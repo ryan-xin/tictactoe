@@ -43,7 +43,7 @@ let isGameOver = false;
 // Check what is the play mode: If it's 1: 1 on 1; If it's 2: vs AI; If it's 3: on line
 let playMode = 1;
 
-// Check human's step in vs AI mode
+// Check human's step in vs AI mode. Only did for 3x3
 let humanStep = 0;
 
 // Check if Local Storage can be used
@@ -114,6 +114,7 @@ $(document).ready(function () {
       blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
       blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
       
+      // Update UI
       // Check if the saved game is over
       if (isGameOver) {
         // If game over disable all block click
@@ -867,6 +868,9 @@ $(document).ready(function () {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 1;
+    // Enable 4x4 grid button
+    $('.grid-two').css('pointer-events', 'auto');
+    $('.grid-two').children().removeClass('disabled-button');
     saveFirebase();
 
   };
@@ -885,6 +889,26 @@ $(document).ready(function () {
     // Update the message
     message = 'Save human!!!';
     $('.message h2').text(message); 
+    // Change to 3x3
+    changeToGridOne()
+    if (gridToggle === 3) {
+      // Show Grid One 3x3 and hide the other one 
+      $('.container-one').css('display', 'block');
+      $('.container-two').css('display', 'none');
+      // Add highlighted border to itself; remove from its sibling
+      $('.grid-one').addClass('set-selected');
+      $('.grid-two').removeClass('set-selected');
+    } else if (gridToggle === 4) {
+      // Show Grid Two 4x4 and hide the other one 
+      $('.container-one').css('display', 'none');
+      $('.container-two').css('display', 'block');
+      // Add highlighted border to itself; remove from its sibling. And show in menu
+      $('.grid-one').removeClass('set-selected');
+      $('.grid-two').addClass('set-selected');
+    }
+    // Disable 4x4 grid button
+    $('.grid-two').css('pointer-events', 'none');
+    $('.grid-two').children().addClass('disabled-button');
     saveFirebase();
   };
 
@@ -899,6 +923,9 @@ $(document).ready(function () {
     playMode = 3;
     playerTwo.name = 'Player Two';
     $('.player-two-result').text(playerTwo.name);
+    // Enable 4x4 grid button
+    $('.grid-two').css('pointer-events', 'auto');
+    $('.grid-two').children().removeClass('disabled-button');
     saveGame();
     saveFirebase();
     // Show Copy URL modal

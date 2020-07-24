@@ -197,6 +197,10 @@ body {
   background-color: #292929;
 }
 
+.disabled-button {
+  color: #292929;
+}
+
 /* ------------------------------- Navigation ------------------------------- */
 
 .nav {

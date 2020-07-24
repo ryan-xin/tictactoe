@@ -1,5 +1,6 @@
 /* ----------------------------- Game Variables ----------------------------- */
 
+// Declare player object easy to update for future
 // Player One Data for changing information globally
 let playerOne = {
   name: 'Player One',
@@ -114,6 +115,7 @@ $(document).ready(function () {
       blockClassArr = JSON.parse(localStorage.getItem('blockClassArr'));
       blockImageArr = JSON.parse(localStorage.getItem('blockImageArr'));
       
+      // Update UI
       // Check if the saved game is over
       if (isGameOver) {
         // If game over disable all block click
@@ -198,7 +200,8 @@ $(document).ready(function () {
 
   // There are three play conditions for: 1on1, Ai and online
   const playerPlay = function () {
-    // It's for 1 on 1 mode
+
+    // It's for 1 on 1 mode -------------------------------------------------------
     if(playMode === 1) {
       // Check if there is already a token. When 'src' empty run place a token
       if ($(this).children().attr('src') === "") {
@@ -256,7 +259,9 @@ $(document).ready(function () {
         $(this).css('cursor', 'default');
         $(this).off('mouseenter mouseleave');
       }
-    } else if (playMode === 2) { // Vs AI mode
+
+      // Vs AI mode -------------------------------------------------------
+    } else if (playMode === 2) { 
       // Check if there is already a token. When 'src' empty run place a token
       if ($(this).children().attr('src') === "") {       
         // Place Player One's token image
@@ -305,7 +310,8 @@ $(document).ready(function () {
         gameOver();  
       }
       saveGame();      
-      // For online Mode
+
+      // For online Mode -------------------------------------------------------
     } else if (playMode === 3) {
       // Check if there is already a token. When 'src' empty run place a token
       if ($(this).children().attr('src') === "") {
@@ -371,7 +377,7 @@ $(document).ready(function () {
 
 
   /* --------------------------------- AI PLAY -------------------------------- */
-  // For 3 x3 grid, the first 2 steps are much more important. After checking the first two steps AI only needs Attack and Defence. All the other steps will lead to a tie game.
+  // Only works for 3 x3 grid, the first 2 steps are much more important. After checking the first two steps AI only needs Attack and Defence. All the other steps will lead to a tie game.
   // AI step one
   const aiStepOne = function() {
     // Clear block class array first as I use arr.push() otherwise the there will be more item than the blocks

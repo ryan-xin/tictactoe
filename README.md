@@ -32,4 +32,5 @@ HTML; CSS; JavaScript; jQuery; Local Storage; Firebase.
 
 * Some of the code is not too long to understand;
 * Still need to make my code less repetitive;
+* Still need to add the feature to control player turn during online game;
 * It is a good opportunity to learn new knowledge like: Local Storage and Firebase.

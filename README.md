@@ -6,8 +6,7 @@ Tic Tac Toe is the first individual project I made during General Assembly SEI c
 
 You could play it [here.](https://ryan-xin.github.io/tictactoe/)
 
-![Screenshot of the game:]
-(https://raw.githubusercontent.com/ryan-xin/tictactoe/master/assets/tictacttoe_screenshot.png)
+![Screenshot of the game:](https://raw.githubusercontent.com/ryan-xin/tictactoe/master/assets/tictacttoe_screenshot.png)
 
 ### Main Features ###
 

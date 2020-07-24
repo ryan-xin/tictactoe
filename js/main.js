@@ -56,7 +56,7 @@ if (localStorage === undefined) {
 // For testing & debugging
 // localStorage.clear();
 
-let firebaseSaved = false;
+// let firebaseSaved = false;
 
 
 
@@ -92,22 +92,23 @@ $(document).ready(function () {
 
   /* -------------------------- Firebase Initializing ------------------------- */
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAIDLIxe5bPM-MZdBon39fcDUPZ9mPk1ag",
-    authDomain: "tic-tac-toe-329b9.firebaseapp.com",
-    databaseURL: "https://tic-tac-toe-329b9.firebaseio.com",
-    projectId: "tic-tac-toe-329b9",
-    storageBucket: "tic-tac-toe-329b9.appspot.com",
-    messagingSenderId: "24513296905",
-    appId: "1:24513296905:web:c25c4648a07ec0569a56d8",
-    measurementId: "G-FQH67FMW2K"
-  };
+  // const firebaseConfig = {
+  //   apiKey: "AIzaSyAIDLIxe5bPM-MZdBon39fcDUPZ9mPk1ag",
+  //   authDomain: "tic-tac-toe-329b9.firebaseapp.com",
+  //   databaseURL: "https://tic-tac-toe-329b9.firebaseio.com",
+  //   projectId: "tic-tac-toe-329b9",
+  //   storageBucket: "tic-tac-toe-329b9.appspot.com",
+  //   messagingSenderId: "24513296905",
+  //   appId: "1:24513296905:web:c25c4648a07ec0569a56d8",
+  //   measurementId: "G-FQH67FMW2K"
+  // };
 
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
+  // firebase.initializeApp(firebaseConfig);
+  // const database = firebase.database();
 
+
+  var db = firebase.firestore();
   
-
 
   /* --------------------------- Reload Local Storage --------------------------- */
   if (localStorageSaved) {
@@ -206,121 +207,121 @@ $(document).ready(function () {
 
   /* ----------------------- Retrieve data from Firebase ---------------------- */
 
-    if (playMode === 3) {
-      firebaseSaved = true;
-      // localStorage.clear();
-    }
+    // if (playMode === 3) {
+    //   firebaseSaved = true;
+    //   // localStorage.clear();
+    // }
 
-    if (firebaseSaved) {
-      console.log('Firebase loading');
+    // if (firebaseSaved) {
+    //   console.log('Firebase loading');
 
-      database.ref('/playMode').on('value', function (snap) {
-        playMode = snap.val();
-      });
+    //   database.ref('/playMode').on('value', function (snap) {
+    //     playMode = snap.val();
+    //   });
 
-      database.ref('/playerOne').on('value', function (snap) {
-        playerOne = snap.val();
-        $('.player-one-result').text(playerOne.name);
-        $('.player-one-result-number').text(playerOne.result);
-      });
+    //   database.ref('/playerOne').on('value', function (snap) {
+    //     playerOne = snap.val();
+    //     $('.player-one-result').text(playerOne.name);
+    //     $('.player-one-result-number').text(playerOne.result);
+    //   });
 
-      database.ref('/playerTwo').on('value', function (snap) {
-        playerTwo = snap.val();
-        $('.player-two-result').text(playerTwo.name);
-        $('.player-two-result-number').text(playerTwo.result);
-      });
+    //   database.ref('/playerTwo').on('value', function (snap) {
+    //     playerTwo = snap.val();
+    //     $('.player-two-result').text(playerTwo.name);
+    //     $('.player-two-result-number').text(playerTwo.result);
+    //   });
 
-      database.ref('/tieResult').on('value', function (snap) {
-        tieResult = snap.val();
-        $('.tie-result-number').text(tieResult);
-      });
+    //   database.ref('/tieResult').on('value', function (snap) {
+    //     tieResult = snap.val();
+    //     $('.tie-result-number').text(tieResult);
+    //   });
 
-      database.ref('/playerTurn').on('value', function (snap) {
-        playerTurn = snap.val();
-      });
+    //   database.ref('/playerTurn').on('value', function (snap) {
+    //     playerTurn = snap.val();
+    //   });
 
-      database.ref('/message').on('value', function (snap) {
-        message = snap.val();
-        $('.message h2').text(message);
-      });
+    //   database.ref('/message').on('value', function (snap) {
+    //     message = snap.val();
+    //     $('.message h2').text(message);
+    //   });
 
-      database.ref('/tokenToggle').on('value', function (snap) {
-        tokenToggle = snap.val();
-        // Check what token set the saved game use and show in menu
-        if (tokenToggle === 1) {
-          // Add highlighted border to itself; remove from its sibling
-          $('.token-set-one').addClass('set-selected');
-          $('.token-set-two').removeClass('set-selected');
-        } else if (tokenToggle === 2) {
-          // Add highlighted border to itself; remove from its sibling. And show in menu
-          $('.token-set-two').addClass('set-selected');
-          $('.token-set-one').removeClass('set-selected');
-        }
-      });
+    //   database.ref('/tokenToggle').on('value', function (snap) {
+    //     tokenToggle = snap.val();
+    //     // Check what token set the saved game use and show in menu
+    //     if (tokenToggle === 1) {
+    //       // Add highlighted border to itself; remove from its sibling
+    //       $('.token-set-one').addClass('set-selected');
+    //       $('.token-set-two').removeClass('set-selected');
+    //     } else if (tokenToggle === 2) {
+    //       // Add highlighted border to itself; remove from its sibling. And show in menu
+    //       $('.token-set-two').addClass('set-selected');
+    //       $('.token-set-one').removeClass('set-selected');
+    //     }
+    //   });
 
-      database.ref('/gridToggle').on('value', function (snap) {
-        gridToggle = snap.val();
-        // Check if the saved game is Grid One 3x3 or Grid Two 4x4
-        if (gridToggle === 3) {
-          // Show Grid One 3x3 and hide the other one 
-          $('.container-one').css('display', 'block');
-          $('.container-two').css('display', 'none');
-          // Add highlighted border to itself; remove from its sibling
-          $('.grid-one').addClass('set-selected');
-          $('.grid-two').removeClass('set-selected');
-        } else if (gridToggle === 4) {
-          // Show Grid Two 4x4 and hide the other one 
-          $('.container-one').css('display', 'none');
-          $('.container-two').css('display', 'block');
-          // Add highlighted border to itself; remove from its sibling. And show in menu
-          $('.grid-one').removeClass('set-selected');
-          $('.grid-two').addClass('set-selected');
-        }
-      });
+    //   database.ref('/gridToggle').on('value', function (snap) {
+    //     gridToggle = snap.val();
+    //     // Check if the saved game is Grid One 3x3 or Grid Two 4x4
+    //     if (gridToggle === 3) {
+    //       // Show Grid One 3x3 and hide the other one 
+    //       $('.container-one').css('display', 'block');
+    //       $('.container-two').css('display', 'none');
+    //       // Add highlighted border to itself; remove from its sibling
+    //       $('.grid-one').addClass('set-selected');
+    //       $('.grid-two').removeClass('set-selected');
+    //     } else if (gridToggle === 4) {
+    //       // Show Grid Two 4x4 and hide the other one 
+    //       $('.container-one').css('display', 'none');
+    //       $('.container-two').css('display', 'block');
+    //       // Add highlighted border to itself; remove from its sibling. And show in menu
+    //       $('.grid-one').removeClass('set-selected');
+    //       $('.grid-two').addClass('set-selected');
+    //     }
+    //   });
 
-      database.ref('/isGameOver').on('value', function (snap) {
-        isGameOver = snap.val();
-        // Check if the saved game is over
-        if (isGameOver) {
-          // If game over disable all block click
-          $('.block').css('pointer-events', 'none');
-          // Remove pointer effect
-          $('.block').css('cursor', 'default');
-        }
-      });
+    //   database.ref('/isGameOver').on('value', function (snap) {
+    //     isGameOver = snap.val();
+    //     // Check if the saved game is over
+    //     if (isGameOver) {
+    //       // If game over disable all block click
+    //       $('.block').css('pointer-events', 'none');
+    //       // Remove pointer effect
+    //       $('.block').css('cursor', 'default');
+    //     }
+    //   });
 
-      database.ref('/blockClassArr').on('value', function (snap) {
-        console.log(snap.val());
-        blockClassArr = snap.val();
-        for (let i = 0; i < $('.block').length; i++) {
-          // Use 'player1' and 'player2' classes to check if this block has been played
-          if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
-            // Show saved class on each block
-            $('.block').eq(i).addClass(blockClassArr[i]);
-            // Show saved block image src on each block
-            $('.block').eq(i).children().attr('src', blockImageArr[i]);
-            // Set the played block to clicked bg color
-            $('.block').eq(i).css('background', '#454545');
-            // Disable cursor pointer
-            $('.block').eq(i).css('cursor', 'default');
-            // Make the block not clickable
-            $('.block').eq(i).css('pointer-events', 'none');;
-          }
-        }
-      });
+    //   database.ref('/blockClassArr').on('value', function (snap) {
+    //     console.log(snap.val());
+    //     blockClassArr = snap.val();
+    //     for (let i = 0; i < $('.block').length; i++) {
+    //       // Use 'player1' and 'player2' classes to check if this block has been played
+    //       if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
+    //         // Show saved class on each block
+    //         $('.block').eq(i).addClass(blockClassArr[i]);
+    //         // Show saved block image src on each block
+    //         $('.block').eq(i).children().attr('src', blockImageArr[i]);
+    //         // Set the played block to clicked bg color
+    //         $('.block').eq(i).css('background', '#454545');
+    //         // Disable cursor pointer
+    //         $('.block').eq(i).css('cursor', 'default');
+    //         // Make the block not clickable
+    //         $('.block').eq(i).css('pointer-events', 'none');;
+    //       }
+    //     }
+    //   });
 
-      database.ref('/blockImageArr').on('value', function (snap) {
-        console.log(snap.val());
-        blockImageArr = snap.val();
-        for (let i = 0; i < $('.block').length; i++) {
-          // Use 'player1' and 'player2' classes to check if this block has been played
-          if (!(blockImageArr[i] === '')) {
-            // Show saved block image src on each block
-            $('.block').eq(i).children().attr('src', blockImageArr[i]);
-          }
-        }
-      });
-    }
+    //   database.ref('/blockImageArr').on('value', function (snap) {
+    //     console.log(snap.val());
+    //     blockImageArr = snap.val();
+    //     for (let i = 0; i < $('.block').length; i++) {
+    //       // Use 'player1' and 'player2' classes to check if this block has been played
+    //       if (!(blockImageArr[i] === '')) {
+    //         // Show saved block image src on each block
+    //         $('.block').eq(i).children().attr('src', blockImageArr[i]);
+    //       }
+    //     }
+    //   });
+    // }
   
 
   /* -------------------------- Player Play Function -------------------------- */
@@ -434,7 +435,7 @@ $(document).ready(function () {
       }
       saveGame();      
     } else if (playMode === 3) {
-        saveFirebase();
+        // saveFirebase();
       // Check if there is already a token. When 'src' empty run place a token
       if ($(this).children().attr('src') === "") {
         if (playerTurn === 1) { // Player One plays
@@ -998,11 +999,13 @@ $(document).ready(function () {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 1;
-    clearFirebase();
+    // clearFirebase();
     // playerTwo.name = 'Player Two';
     // $('.player-two-result').text(playerTwo.name);
     // saveGame();
     // localStorage.clear();
+    saveFirebase();
+
   };
 
   const changeToVsRobot = function() {
@@ -1018,9 +1021,10 @@ $(document).ready(function () {
     // Update the message
     message = 'Save human!!!';
     $('.message h2').text(message); 
-    clearFirebase();
+    // clearFirebase();
     // saveGame();
     // localStorage.clear();
+    saveFirebase();
   };
 
   const changeToOnline = function () {
@@ -1083,7 +1087,7 @@ $(document).ready(function () {
     $('.player-two-result-number').text(playerTwo.result);
     $('.tie-result-number').text(tieResult);
     localStorage.clear();
-    clearFirebase();
+    // clearFirebase();
   };
 
   /* ------------------------------ Game Over ----------------------------- */
@@ -1136,31 +1140,177 @@ $(document).ready(function () {
 
   /* -------------------------- Save data to Firebase ------------------------- */
 
-  const saveFirebase = function () {
-    database.ref('/playMode').set(playMode);
-    database.ref('/playerOne').set(playerOne);
-    database.ref('/playerTwo').set(playerTwo);
-    database.ref('/tieResult').set(tieResult);
-    database.ref('/playerTurn').set(playerTurn);
-    database.ref('/message').set(message);
-    database.ref('/tokenToggle').set(tokenToggle);
-    database.ref('/gridToggle').set(gridToggle);
-    database.ref('/isGameOver').set(isGameOver);
+  // const saveFirebase = function () {
+  //   database.ref('/playMode').set(playMode);
+  //   database.ref('/playerOne').set(playerOne);
+  //   database.ref('/playerTwo').set(playerTwo);
+  //   database.ref('/tieResult').set(tieResult);
+  //   database.ref('/playerTurn').set(playerTurn);
+  //   database.ref('/message').set(message);
+  //   database.ref('/tokenToggle').set(tokenToggle);
+  //   database.ref('/gridToggle').set(gridToggle);
+  //   database.ref('/isGameOver').set(isGameOver);
+  //   blockClassArr = [];
+  //   blockClassChecker();
+  //   database.ref('/blockClassArr').set(blockClassArr)
+  //   blockImageArr = [];
+  //   blockImageChecker();
+  //   database.ref('/blockImageArr').set(blockImageArr)
+  // };
+
+  const saveFirebase = function() {
+    db.collection("gameData").doc('playerOne').set(playerOne);
+    db.collection("gameData").doc('playerTwo').set(playerTwo);
+    db.collection("gameData").doc('playStatus').set({
+      playMode: playMode,
+      tieResult: tieResult,
+      playerTurn: playerTurn,
+      message: message,
+      tokenToggle: tokenToggle,
+      gridToggle: gridToggle,
+      isGameOver: isGameOver
+    })
     blockClassArr = [];
     blockClassChecker();
-    database.ref('/blockClassArr').set(blockClassArr)
     blockImageArr = [];
     blockImageChecker();
-    database.ref('/blockImageArr').set(blockImageArr)
+    db.collection("gameData").doc('blockStatus').set({
+      blockClassArr: blockClassArr,
+      blockImageArr: blockImageArr
+    })
   };
+
+  // Firebase Realtime Updates
+  db.collection('gameData').onSnapshot(snapshot => {
+    // console.log(1)
+    db.collection('gameData').doc('playStatus').get().then(function(doc) {
+      if(doc.data().playMode === 3) {
+        console.log(2);
+        db.collection('gameData').doc('playerOne').get().then(function (doc) {
+          playerOne = doc.data();
+          $('.player-one-result').text(playerOne.name);
+          $('.player-one-result-number').text(playerOne.result);
+        });
+        db.collection('gameData').doc('playerTwo').get().then(function (doc) {
+          playerTwo = doc.data();
+          $('.player-two-result').text(playerTwo.name);
+          $('.player-two-result-number').text(playerTwo.result);
+        });
+        db.collection('gameData').doc('playStatus').get().then(function (doc) {
+          const playStatus = doc.data();
+          gridToggle = playStatus.gridToggle;
+          tieResult = playStatus.tieResult;
+          message = playStatus.message;
+          playMode = playStatus.playMode;
+          playerTurn = playStatus.playerTurn;
+          tokenToggle = playStatus.tokenToggle;
+          isGameOver = playStatus.isGameOver;
+          $('.message h2').text(message);
+          // Check what token set the saved game use and show in menu
+          if (tokenToggle === 1) {
+            // Add highlighted border to itself; remove from its sibling
+            $('.token-set-one').addClass('set-selected');
+            $('.token-set-two').removeClass('set-selected');
+          } else if (tokenToggle === 2) {
+            // Add highlighted border to itself; remove from its sibling. And show in menu
+            $('.token-set-two').addClass('set-selected');
+            $('.token-set-one').removeClass('set-selected');
+          }
+          // Check if the saved game is over
+          if (isGameOver) {
+            // If game over disable all block click
+            $('.block').css('pointer-events', 'none');
+            // Remove pointer effect
+            $('.block').css('cursor', 'default');
+          }
+          if (gridToggle === 3) {
+            // Show Grid One 3x3 and hide the other one 
+            $('.container-one').css('display', 'block');
+            $('.container-two').css('display', 'none');
+            // Add highlighted border to itself; remove from its sibling
+            $('.grid-one').addClass('set-selected');
+            $('.grid-two').removeClass('set-selected');
+          } else if (gridToggle === 4) {
+            // Show Grid Two 4x4 and hide the other one 
+            $('.container-one').css('display', 'none');
+            $('.container-two').css('display', 'block');
+            // Add highlighted border to itself; remove from its sibling. And show in menu
+            $('.grid-one').removeClass('set-selected');
+            $('.grid-two').addClass('set-selected');
+          }
+        });
+        db.collection('gameData').doc('blockStatus').get().then(function (doc) {
+          const blockStatus = doc.data();
+          
+          blockClassArr = blockStatus.blockClassArr;
+          // console.log(blockClassArr);
+          let blankClassBlock = 0;
+          for (let i = 0; i < $('.block').length; i++) {
+            // Use 'player1' and 'player2' classes to check if this block has been played
+            if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
+              // Show saved class on each block
+              $('.block').eq(i).addClass(blockClassArr[i]);
+              // Set the played block to clicked bg color
+              $('.block').eq(i).css('background', '#454545');
+              // Disable cursor pointer
+              $('.block').eq(i).css('cursor', 'default');
+              // Make the block not clickable
+              $('.block').eq(i).css('pointer-events', 'none');;
+            } else if(blockClassArr[i] === '' ) {
+              blankClassBlock += 1;
+              console.log(blankClassBlock);
+            }
+            if (blankClassBlock === $('.block').length) {
+              $('.block').removeClass('player1').removeClass('player2');
+              // Enable click event
+              $('.block').css('pointer-events', 'auto');
+              // Enable hover event
+              $('.block').hover(blockMouseEnter, blockMouseLeave);
+              $('.block').css('background', '#292929');
+              $('.block').css('cursor', 'pointer');
+              blankClassBlock = 0;
+            }
+          }
+          blockImageArr = blockStatus.blockImageArr;
+          // console.log(blockImageArr);
+          let blankImageBlock = 0;
+          for (let i = 0; i < $('.block').length; i++) {
+            // Use 'player1' and 'player2' classes to check if this block has been played
+            if (!(blockImageArr[i] === '')) {
+              // Show saved block image src on each block
+              $('.block').eq(i).children().attr('src', blockImageArr[i]);
+            } else if (blockImageArr[i] === '') {
+              blankImageBlock += 1;
+              console.log(blankImageBlock);
+            }
+            if (blankImageBlock === $('.block').length) {
+              $('.block').children().attr('src', '');
+              blankImageBlock = 0;
+            }
+          }  
+        });
+      }
+    });
+  });
+  
+
 
 
 
   /* ------------------------------- Clear data ------------------------------- */
 
-  const clearFirebase = function () {
-    database.ref('/').remove();
+  const clearFirebase = function() {
+    db.collection("gameData").doc('playerOne').delete();
+    db.collection("gameData").doc('playerTwo').delete();
+    db.collection("gameData").doc('playStatus').delete();
+    db.collection("gameData").doc('blockStatus').delete();
   };
+
+
+
+  // const clearFirebase = function () {
+  //   database.ref('/').remove();
+  // };
 
 
 

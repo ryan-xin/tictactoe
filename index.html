@@ -192,11 +192,32 @@
   </div>
 
 <!-- ------------------------------ Firebase ------------------------------- -->
-  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+  <!-- <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script>
-  <!-- <script src="js/firebase.js"></script> -->
+  <script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script> -->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.16.1/firebase-firestore.js"></script> -->
+
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+<script>
+  // Your web app's Firebase configuration
+  var firebaseConfig = {
+    apiKey: "AIzaSyAJlcOu7iC52lntN1z6kbr4hRk4pFC9n2o",
+    authDomain: "tictactoe-ef619.firebaseapp.com",
+    databaseURL: "https://tictactoe-ef619.firebaseio.com",
+    projectId: "tictactoe-ef619",
+    storageBucket: "tictactoe-ef619.appspot.com",
+    messagingSenderId: "89145215045",
+    appId: "1:89145215045:web:71f041291eb01aef7d3b2c"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+</script>
 
 </body>
 

@@ -1,0 +1,168 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /games/{gameId} {
+      allow read: if signedIn();
+      allow create: if signedIn()
+        && request.resource.data.players.player1 == request.auth.uid
+        && request.resource.data.players.player2 == null
+        && request.resource.data.displayNames.player1 is string
+        && request.resource.data.displayNames.player2 == 'Player Two';
+      allow update: if signedIn() && (isJoiningSecondPlayer() || isParticipantWrite());
+      allow delete: if false;
+    }
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isParticipant() {
+      return request.auth.uid == resource.data.players.player1
+        || request.auth.uid == resource.data.players.player2;
+    }
+
+    function isJoiningSecondPlayer() {
+      return resource.data.players.player2 == null
+        && request.resource.data.players.player1 == resource.data.players.player1
+        && request.resource.data.players.player2 == request.auth.uid
+        && request.resource.data.displayNames.player1 == resource.data.displayNames.player1
+        && request.resource.data.displayNames.player2 is string
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'players',
+          'displayNames',
+          'status',
+          'currentTurnUid',
+          'updatedAt'
+        ]);
+    }
+
+    function isParticipantWrite() {
+      return isParticipant()
+        && request.resource.data.players == resource.data.players
+        && request.resource.data.displayNames == resource.data.displayNames
+        && (isLegalMove() || isReusableRoomReset() || isRoomOptionUpdate());
+    }
+
+    function isLegalMove() {
+      return resource.data.status == 'active'
+        && resource.data.currentTurnUid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'playStatus',
+          'board',
+          'currentTurnUid',
+          'status',
+          'scores',
+          'winnerUid',
+          'updatedAt'
+        ])
+        && request.resource.data.options == resource.data.options
+        && validScoreChange()
+        && request.resource.data.board.diff(resource.data.board).affectedKeys().size() == 1
+        && (
+          isLegalCellMove('c0') || isLegalCellMove('c1') || isLegalCellMove('c2') ||
+          isLegalCellMove('c3') || isLegalCellMove('c4') || isLegalCellMove('c5') ||
+          isLegalCellMove('c6') || isLegalCellMove('c7') || isLegalCellMove('c8') ||
+          isLegalCellMove('c9') || isLegalCellMove('c10') || isLegalCellMove('c11') ||
+          isLegalCellMove('c12') || isLegalCellMove('c13') || isLegalCellMove('c14') ||
+          isLegalCellMove('c15') || isLegalCellMove('c16') || isLegalCellMove('c17') ||
+          isLegalCellMove('c18') || isLegalCellMove('c19') || isLegalCellMove('c20') ||
+          isLegalCellMove('c21') || isLegalCellMove('c22') || isLegalCellMove('c23') ||
+          isLegalCellMove('c24')
+        );
+    }
+
+    function isLegalCellMove(cell) {
+      return request.resource.data.board.diff(resource.data.board).affectedKeys().hasOnly([cell])
+        && resource.data.board[cell] == ''
+        && request.resource.data.board[cell] == playerClassForCurrentUser();
+    }
+
+    function playerClassForCurrentUser() {
+      return request.auth.uid == resource.data.players.player1 ? 'player1' : 'player2';
+    }
+
+    function isReusableRoomReset() {
+      return (resource.data.status == 'active' || resource.data.status == 'finished')
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'playStatus',
+          'board',
+          'currentTurnUid',
+          'status',
+          'scores',
+          'winnerUid',
+          'updatedAt'
+        ])
+        && request.resource.data.options == resource.data.options
+        && request.resource.data.scores == resource.data.scores
+        && request.resource.data.winnerUid == null
+        && isEmptyBoard(request.resource.data.board);
+    }
+
+    function isRoomOptionUpdate() {
+      return isEmptyBoard(resource.data.board)
+        && isEmptyBoard(request.resource.data.board)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'playStatus',
+          'options',
+          'board',
+          'currentTurnUid',
+          'status',
+          'scores',
+          'winnerUid',
+          'updatedAt'
+        ])
+        && request.resource.data.scores == resource.data.scores
+        && request.resource.data.winnerUid == null;
+    }
+
+    function validScoreChange() {
+      return scoresUnchanged()
+        || playerOneScoreIncremented()
+        || playerTwoScoreIncremented()
+        || tieScoreIncremented();
+    }
+
+    function scoresUnchanged() {
+      return request.resource.data.status == 'active'
+        && request.resource.data.winnerUid == resource.data.winnerUid
+        && request.resource.data.scores == resource.data.scores;
+    }
+
+    function playerOneScoreIncremented() {
+      return request.resource.data.status == 'finished'
+        && request.resource.data.winnerUid == resource.data.players.player1
+        && request.resource.data.scores.player1 == resource.data.scores.player1 + 1
+        && request.resource.data.scores.player2 == resource.data.scores.player2
+        && request.resource.data.scores.ties == resource.data.scores.ties;
+    }
+
+    function playerTwoScoreIncremented() {
+      return request.resource.data.status == 'finished'
+        && request.resource.data.winnerUid == resource.data.players.player2
+        && request.resource.data.scores.player1 == resource.data.scores.player1
+        && request.resource.data.scores.player2 == resource.data.scores.player2 + 1
+        && request.resource.data.scores.ties == resource.data.scores.ties;
+    }
+
+    function tieScoreIncremented() {
+      return request.resource.data.status == 'finished'
+        && request.resource.data.winnerUid == null
+        && request.resource.data.scores.player1 == resource.data.scores.player1
+        && request.resource.data.scores.player2 == resource.data.scores.player2
+        && request.resource.data.scores.ties == resource.data.scores.ties + 1;
+    }
+
+    function isEmptyBoard(board) {
+      return board.c0 == '' && board.c1 == '' && board.c2 == '' &&
+        board.c3 == '' && board.c4 == '' && board.c5 == '' &&
+        board.c6 == '' && board.c7 == '' && board.c8 == '' &&
+        board.c9 == '' && board.c10 == '' && board.c11 == '' &&
+        board.c12 == '' && board.c13 == '' && board.c14 == '' &&
+        board.c15 == '' && board.c16 == '' && board.c17 == '' &&
+        board.c18 == '' && board.c19 == '' && board.c20 == '' &&
+        board.c21 == '' && board.c22 == '' && board.c23 == '' &&
+        board.c24 == '';
+    }
+  }
+}

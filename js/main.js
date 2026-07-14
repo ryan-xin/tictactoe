@@ -92,7 +92,491 @@ $(document).ready(function () {
 
 
   // Firebase declaration
+  var auth = firebase.auth();
   var db = firebase.firestore();
+  const onlineState = {
+    user: null,
+    roomId: null,
+    room: null,
+    playerSlot: null,
+    unsubscribe: null,
+    isApplyingRemote: false
+  };
+  const onlineAuthReady = new Promise(function(resolve) {
+    auth.onAuthStateChanged(function(user) {
+      onlineState.user = user;
+      if (user) {
+        resolve(user);
+      }
+    });
+  });
+
+  auth.signInAnonymously().catch(function(error) {
+    message = 'Online mode needs anonymous Firebase Auth.';
+    $('.message h2').text(message);
+    console.error('Firebase anonymous auth failed:', error);
+  });
+
+  const getRoomIdFromUrl = function() {
+    return new URLSearchParams(window.location.search).get('game');
+  };
+
+  const getRoomUrl = function(roomId) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('game', roomId);
+    return url.toString();
+  };
+
+  const setRoomIdInUrl = function(roomId) {
+    const roomUrl = getRoomUrl(roomId);
+    window.history.replaceState({}, '', roomUrl);
+    $('.url-address').text(roomUrl);
+  };
+
+  const getBoardClassMap = function() {
+    const board = {};
+    for (let i = 0; i < $('.block').length; i++) {
+      if ($('.block').eq(i).hasClass('player1')) {
+        board['c' + i] = 'player1';
+      } else if ($('.block').eq(i).hasClass('player2')) {
+        board['c' + i] = 'player2';
+      } else {
+        board['c' + i] = '';
+      }
+    }
+    return board;
+  };
+
+  const getBoardArrayFromMap = function(board) {
+    const boardArray = [];
+    for (let i = 0; i < $('.block').length; i++) {
+      boardArray.push(board && board['c' + i] ? board['c' + i] : '');
+    }
+    return boardArray;
+  };
+
+  const getWinningCellIndexes = function(board) {
+    const boardArray = getBoardArrayFromMap(board);
+    const offset = gridToggle === 3 ? 0 : 9;
+    const lines = getWinLines(gridToggle);
+    for (let i = 0; i < lines.length; i++) {
+      const firstCell = boardArray[offset + lines[i][0]];
+      if (firstCell === '') {
+        continue;
+      }
+      if (lines[i].every(function(cell) { return boardArray[offset + cell] === firstCell; })) {
+        return lines[i].map(function(cell) { return offset + cell; });
+      }
+    }
+    return [];
+  };
+
+  const getOnlinePlayerSlot = function(room) {
+    if (!onlineState.user || !room || !room.players) {
+      return null;
+    }
+    if (room.players.player1 === onlineState.user.uid) {
+      return 'player1';
+    }
+    if (room.players.player2 === onlineState.user.uid) {
+      return 'player2';
+    }
+    return null;
+  };
+
+  const getUidForPlayerTurn = function(turn, room) {
+    if (!room || !room.players) {
+      return null;
+    }
+    return turn === 1 ? room.players.player1 : room.players.player2;
+  };
+
+  const getChangedBoardCells = function(previousBoard, nextBoard) {
+    const changedCells = [];
+    for (let i = 0; i < $('.block').length; i++) {
+      const cell = 'c' + i;
+      const previousValue = previousBoard && previousBoard[cell] ? previousBoard[cell] : '';
+      const nextValue = nextBoard && nextBoard[cell] ? nextBoard[cell] : '';
+      if (previousValue !== nextValue) {
+        changedCells.push(cell);
+      }
+    }
+    return changedCells;
+  };
+
+  const isEmptyBoardMap = function(board) {
+    for (let i = 0; i < $('.block').length; i++) {
+      if (board && board['c' + i]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const getWinnerClassFromBoard = function(board) {
+    const boardArray = getBoardArrayFromMap(board);
+    const offset = gridToggle === 3 ? 0 : 9;
+    const lines = getWinLines(gridToggle);
+    for (let i = 0; i < lines.length; i++) {
+      const firstCell = boardArray[offset + lines[i][0]];
+      if (firstCell === '') {
+        continue;
+      }
+      if (lines[i].every(function(cell) { return boardArray[offset + cell] === firstCell; })) {
+        return firstCell;
+      }
+    }
+    return '';
+  };
+
+  const getWinnerUidFromBoard = function(board, room) {
+    const winnerClass = getWinnerClassFromBoard(board);
+    if (!room || !room.players || winnerClass === '') {
+      return null;
+    }
+    return winnerClass === 'player1' ? room.players.player1 : room.players.player2;
+  };
+
+  const getOnlineDisplayName = function(defaultName) {
+    const savedName = localStorage.getItem('onlineDisplayName');
+    if (savedName) {
+      return savedName;
+    }
+    const enteredName = window.prompt('Display name for this online room:', defaultName);
+    const displayName = enteredName && enteredName.trim() ? enteredName.trim().slice(0, 24) : defaultName;
+    localStorage.setItem('onlineDisplayName', displayName);
+    return displayName;
+  };
+
+  const getRoomOptions = function() {
+    return {
+      tokenToggle: tokenToggle,
+      gridToggle: gridToggle,
+      playerOneToken: playerOne.token,
+      playerOneTokenWin: playerOne.tokenWin,
+      playerTwoToken: playerTwo.token,
+      playerTwoTokenWin: playerTwo.tokenWin
+    };
+  };
+
+  const applyRoomOptions = function(options) {
+    if (!options) {
+      return;
+    }
+    tokenToggle = options.tokenToggle;
+    gridToggle = options.gridToggle;
+    playerOne.token = options.playerOneToken;
+    playerOne.tokenWin = options.playerOneTokenWin;
+    playerTwo.token = options.playerTwoToken;
+    playerTwo.tokenWin = options.playerTwoTokenWin;
+  };
+
+  const canCurrentOnlinePlayerMove = function(room) {
+    const currentRoom = room || onlineState.room;
+    return playMode === 3 &&
+      onlineState.user &&
+      currentRoom &&
+      getOnlinePlayerSlot(currentRoom) !== null &&
+      currentRoom.status === 'active' &&
+      currentRoom.currentTurnUid === onlineState.user.uid &&
+      !isGameOver;
+  };
+
+  const applyRoomBoard = function(board) {
+    const winningCells = getWinningCellIndexes(board);
+    for (let i = 0; i < $('.block').length; i++) {
+      const blockClass = board && board['c' + i] ? board['c' + i] : '';
+      const $block = $('.block').eq(i);
+      $block.removeClass('player1').removeClass('player2');
+      if (blockClass === 'player1') {
+        $block.addClass('player1');
+        $block.children().attr('src', winningCells.includes(i) ? playerOne.tokenWin : playerOne.token);
+        $block.css('background', '#454545');
+        $block.css('cursor', 'default');
+      } else if (blockClass === 'player2') {
+        $block.addClass('player2');
+        $block.children().attr('src', winningCells.includes(i) ? playerTwo.tokenWin : playerTwo.token);
+        $block.css('background', '#454545');
+        $block.css('cursor', 'default');
+      } else {
+        $block.children().attr('src', '');
+        $block.css('background', '#292929');
+        $block.css('cursor', 'pointer');
+      }
+    }
+  };
+
+  const updateOnlineInteractivity = function(room) {
+    const canMove = canCurrentOnlinePlayerMove(room);
+    for (let i = 0; i < $('.block').length; i++) {
+      const $block = $('.block').eq(i);
+      if ($block.children().attr('src') === '' && canMove) {
+        $block.css('pointer-events', 'auto');
+        $block.css('cursor', 'pointer');
+      } else {
+        $block.css('pointer-events', 'none');
+        if ($block.children().attr('src') !== '') {
+          $block.css('cursor', 'default');
+        }
+      }
+    }
+  };
+
+  const showOnlineRoomMessage = function(room) {
+    const slot = getOnlinePlayerSlot(room);
+    if (slot === null && room && room.players && room.players.player2) {
+      message = 'This online room is full.';
+    } else if (room && room.status === 'waiting') {
+      message = 'Waiting for Player Two to join.';
+    } else if (room && room.status === 'finished') {
+      message = room.playStatus && room.playStatus.message ? room.playStatus.message : 'Round finished.';
+    } else if (canCurrentOnlinePlayerMove(room)) {
+      message = 'It is your turn.';
+    } else {
+      message = 'Waiting for the other player.';
+    }
+    $('.message h2').text(message);
+  };
+
+  const applyOnlineRoom = function(room) {
+    if (!room) {
+      return;
+    }
+    onlineState.isApplyingRemote = true;
+    onlineState.room = room;
+    onlineState.playerSlot = getOnlinePlayerSlot(room);
+
+    applyRoomOptions(room.options);
+    if (room.displayNames) {
+      playerOne.name = room.displayNames.player1 || playerOne.name;
+      playerTwo.name = room.displayNames.player2 || playerTwo.name;
+    }
+    if (room.scores) {
+      playerOne.result = room.scores.player1;
+      playerTwo.result = room.scores.player2;
+      tieResult = room.scores.ties;
+    }
+    if (room.playStatus) {
+      gridToggle = room.playStatus.gridToggle;
+      tieResult = room.scores ? room.scores.ties : room.playStatus.tieResult;
+      playerTurn = room.playStatus.playerTurn;
+      tokenToggle = room.playStatus.tokenToggle;
+      isGameOver = room.playStatus.isGameOver;
+      message = room.playStatus.message;
+    }
+
+    $('.player-one-result').text(playerOne.name);
+    $('.player-two-result').text(playerTwo.name);
+    $('.player-one-result-number').text(playerOne.result);
+    $('.player-two-result-number').text(playerTwo.result);
+    $('.tie-result-number').text(tieResult);
+
+    if (tokenToggle === 1) {
+      $('.token-set-one').addClass('set-selected');
+      $('.token-set-two').removeClass('set-selected');
+    } else if (tokenToggle === 2) {
+      $('.token-set-two').addClass('set-selected');
+      $('.token-set-one').removeClass('set-selected');
+    }
+
+    if (gridToggle === 3) {
+      $('.container-one').css('display', 'block');
+      $('.container-two').css('display', 'none');
+      $('.grid-one').addClass('set-selected');
+      $('.grid-two').removeClass('set-selected');
+    } else if (gridToggle === 4) {
+      $('.container-one').css('display', 'none');
+      $('.container-two').css('display', 'block');
+      $('.grid-one').removeClass('set-selected');
+      $('.grid-two').addClass('set-selected');
+    }
+
+    applyRoomBoard(room.board);
+    showOnlineRoomMessage(room);
+    updateOnlineInteractivity(room);
+    onlineState.isApplyingRemote = false;
+  };
+
+  const buildOnlineRoomData = function(status) {
+    const currentRoom = onlineState.room || {};
+    const players = currentRoom.players || {};
+    const board = getBoardClassMap();
+    const currentTurnUid = isGameOver ? null : getUidForPlayerTurn(playerTurn, currentRoom);
+    return {
+      players: players,
+      displayNames: currentRoom.displayNames || {
+        player1: playerOne.name,
+        player2: playerTwo.name
+      },
+      options: getRoomOptions(),
+      scores: {
+        player1: playerOne.result,
+        player2: playerTwo.result,
+        ties: tieResult
+      },
+      playStatus: {
+        playMode: playMode,
+        tieResult: tieResult,
+        playerTurn: playerTurn,
+        message: message,
+        tokenToggle: tokenToggle,
+        gridToggle: gridToggle,
+        isGameOver: isGameOver
+      },
+      board: board,
+      currentTurnUid: currentTurnUid,
+      status: status,
+      winnerUid: getWinnerUidFromBoard(board, currentRoom),
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+  };
+
+  const prepareFirstPlayerRoom = function(user) {
+    playerOne.name = getOnlineDisplayName('Player One');
+    onlineState.room = {
+      players: {
+        player1: user.uid,
+        player2: null
+      },
+      displayNames: {
+        player1: playerOne.name,
+        player2: 'Player Two'
+      },
+      options: getRoomOptions()
+    };
+  };
+
+  const buildOnlineRoomUpdate = function(room) {
+    const board = getBoardClassMap();
+    const currentTurnUid = isGameOver ? null : getUidForPlayerTurn(playerTurn, room);
+    const hasSecondPlayer = !!(room.players && room.players.player2);
+    const status = isGameOver ? 'finished' : (hasSecondPlayer ? 'active' : 'waiting');
+    return {
+      board: board,
+      currentTurnUid: currentTurnUid,
+      status: status,
+      winnerUid: getWinnerUidFromBoard(board, room),
+      scores: {
+        player1: playerOne.result,
+        player2: playerTwo.result,
+        ties: tieResult
+      },
+      options: getRoomOptions(),
+      playStatus: {
+        playMode: playMode,
+        tieResult: tieResult,
+        playerTurn: playerTurn,
+        message: message,
+        tokenToggle: tokenToggle,
+        gridToggle: gridToggle,
+        isGameOver: isGameOver
+      },
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+  };
+
+  const isAllowedOnlineRoomUpdate = function(room, updateData) {
+    const slot = getOnlinePlayerSlot(room);
+    const changedCells = getChangedBoardCells(room.board, updateData.board);
+    const isReset = isEmptyBoardMap(updateData.board);
+    const isOptionOnly = changedCells.length === 0 && !room.playStatus.isGameOver;
+    const isLegalMove = changedCells.length === 1 &&
+      room.board[changedCells[0]] === '' &&
+      updateData.board[changedCells[0]] === slot &&
+      room.currentTurnUid === onlineState.user.uid;
+    return slot !== null && (isLegalMove || isReset || isOptionOnly);
+  };
+
+  const startRoomListener = function(roomId) {
+    if (onlineState.unsubscribe) {
+      onlineState.unsubscribe();
+    }
+    onlineState.roomId = roomId;
+    onlineState.unsubscribe = db.collection('games').doc(roomId).onSnapshot(function(doc) {
+      if (!doc.exists) {
+        message = 'Online room was not found.';
+        $('.message h2').text(message);
+        return;
+      }
+      applyOnlineRoom(doc.data());
+    }, function(error) {
+      message = 'Could not load online room.';
+      $('.message h2').text(message);
+      console.error('Online room listener failed:', error);
+    });
+  };
+
+  const stopOnlineRoom = function() {
+    if (onlineState.unsubscribe) {
+      onlineState.unsubscribe();
+    }
+    onlineState.roomId = null;
+    onlineState.room = null;
+    onlineState.playerSlot = null;
+    onlineState.unsubscribe = null;
+  };
+
+  const createOnlineRoom = function(user) {
+    const roomRef = db.collection('games').doc();
+    onlineState.roomId = roomRef.id;
+    prepareFirstPlayerRoom(user);
+    const roomData = buildOnlineRoomData('waiting');
+    roomData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+    roomData.currentTurnUid = user.uid;
+    return roomRef.set(roomData).then(function() {
+      setRoomIdInUrl(roomRef.id);
+      startRoomListener(roomRef.id);
+      $('.online-modal-background').height('100%');
+    });
+  };
+
+  const joinOnlineRoom = function(roomId, user) {
+    const roomRef = db.collection('games').doc(roomId);
+    return db.runTransaction(function(transaction) {
+      return transaction.get(roomRef).then(function(doc) {
+        if (!doc.exists) {
+          onlineState.roomId = roomId;
+          prepareFirstPlayerRoom(user);
+          const roomData = buildOnlineRoomData('waiting');
+          roomData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+          roomData.currentTurnUid = user.uid;
+          transaction.set(roomRef, roomData);
+          return;
+        }
+        const room = doc.data();
+        if (room.players.player1 === user.uid || room.players.player2 === user.uid) {
+          return;
+        }
+        if (!room.players.player2) {
+          const displayName = getOnlineDisplayName('Player Two');
+          transaction.update(roomRef, {
+            'players.player2': user.uid,
+            'displayNames.player2': displayName,
+            status: 'active',
+            currentTurnUid: room.players.player1,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      });
+    }).then(function() {
+      setRoomIdInUrl(roomId);
+      startRoomListener(roomId);
+    });
+  };
+
+  const startOnlineMode = function() {
+    onlineAuthReady.then(function(user) {
+      const roomId = getRoomIdFromUrl();
+      if (roomId) {
+        return joinOnlineRoom(roomId, user);
+      }
+      return createOnlineRoom(user);
+    }).catch(function(error) {
+      message = 'Could not start online mode.';
+      $('.message h2').text(message);
+      console.error('Online mode failed:', error);
+    });
+  };
   
 
 
@@ -317,6 +801,10 @@ $(document).ready(function () {
       }
       // For online Mode
     } else if (playMode === 3) {
+      if (!canCurrentOnlinePlayerMove()) {
+        showOnlineRoomMessage(onlineState.room);
+        return;
+      }
       // Check if there is already a token. When 'src' empty run place a token
       if ($(this).children().attr('src') === "") {
         if (playerTurn === 1) { // Player One plays
@@ -875,6 +1363,7 @@ $(document).ready(function () {
 
   const changeToOneOnOne = function() {
     // When change play mode everything should be reset
+    stopOnlineRoom();
     localStorage.clear();
     newGame();
     hideMenu();
@@ -891,6 +1380,7 @@ $(document).ready(function () {
 
   const changeToVsRobot = function() {
     // When change play mode everything should be reset
+    stopOnlineRoom();
     localStorage.clear();
     newGame();
     hideMenu();
@@ -925,9 +1415,7 @@ $(document).ready(function () {
     $('.grid-two').css('pointer-events', 'auto');
     $('.grid-two').children().removeClass('disabled-button');
     saveGame();
-    saveFirebase();
-    // Show Copy URL modal
-    $('.online-modal-background').height('100%');
+    startOnlineMode();
   };
 
 
@@ -972,6 +1460,10 @@ $(document).ready(function () {
 
   // Clear all saved data
   const newGame = function() {
+    if (playMode === 3) {
+      restartGame();
+      return;
+    }
     restartGame();
     playerOne.result = 0;
     playerTwo.result = 0;
@@ -1038,169 +1530,32 @@ $(document).ready(function () {
   /* -------------------------- Save Data to Firebase ------------------------- */
 
   const saveFirebase = function() {
-    // Save playerOne to Firebase collection: gameData > document: playerOne 
-    db.collection("gameData").doc('playerOne').set(playerOne);
-    // Save playerTwo to Firebase collection: gameData > document: playerTwo 
-    db.collection("gameData").doc('playerTwo').set(playerTwo);
-    // Save current status to Firebase collection: gameData > document: playStatus (Firebase Firestore only accepts object?) 
-    db.collection("gameData").doc('playStatus').set({
-      playMode: playMode,
-      tieResult: tieResult,
-      playerTurn: playerTurn,
-      message: message,
-      tokenToggle: tokenToggle,
-      gridToggle: gridToggle,
-      isGameOver: isGameOver
-    })
-    // Clear the array first as I use array.push()
-    blockClassArr = [];
-    blockClassChecker();
-    blockImageArr = [];
-    blockImageChecker();
-    // Save current block status to Firebase collection: gameData > document: blockStatus (Firebase Firestore only accepts object?) 
-    db.collection("gameData").doc('blockStatus').set({
-      blockClassArr: blockClassArr,
-      blockImageArr: blockImageArr
-    })
-  };
+    if (playMode !== 3 || onlineState.isApplyingRemote || !onlineState.roomId || !onlineState.user || !onlineState.room) {
+      return;
+    }
+    if (getOnlinePlayerSlot(onlineState.room) === null) {
+      return;
+    }
 
-
-
-  /* ------------------------ Firebase Realtime Updates ----------------------- */
-
-  // It runs all the time as long as the data snapshot changes
-  db.collection('gameData').onSnapshot(snapshot => {
-    // But only make it realtime update when playMode === 3 which is online game mode
-    db.collection('gameData').doc('playStatus').get().then(function(doc) {
-      if(doc.data().playMode === 3) {
-        // Retrieve playerOne data from Firebase
-        db.collection('gameData').doc('playerOne').get().then(function (doc) {
-          playerOne = doc.data();
-          $('.player-one-result').text(playerOne.name);
-          $('.player-one-result-number').text(playerOne.result);
-        });
-        // Retrieve playerTwo data from Firebase
-        db.collection('gameData').doc('playerTwo').get().then(function (doc) {
-          playerTwo = doc.data();
-          $('.player-two-result').text(playerTwo.name);
-          $('.player-two-result-number').text(playerTwo.result);
-        });
-        // Retrieve playStatus data from Firebase
-        db.collection('gameData').doc('playStatus').get().then(function (doc) {
-          const playStatus = doc.data();
-          gridToggle = playStatus.gridToggle;
-          tieResult = playStatus.tieResult;
-          message = playStatus.message;
-          playMode = playStatus.playMode;
-          playerTurn = playStatus.playerTurn;
-          tokenToggle = playStatus.tokenToggle;
-          isGameOver = playStatus.isGameOver;
-
-          /* -------------------------- Update user interface ------------------------- */
-
-          $('.message h2').text(message);
-          // Check what token set the saved game use and show in menu
-          if (tokenToggle === 1) {
-            // Add highlighted border to itself; remove from its sibling
-            $('.token-set-one').addClass('set-selected');
-            $('.token-set-two').removeClass('set-selected');
-          } else if (tokenToggle === 2) {
-            // Add highlighted border to itself; remove from its sibling. And show in menu
-            $('.token-set-two').addClass('set-selected');
-            $('.token-set-one').removeClass('set-selected');
-          }
-          // Check if the saved game is over to disable the block
-          if (isGameOver) {
-            // If game over disable all block click
-            $('.block').css('pointer-events', 'none');
-            // Remove pointer effect
-            $('.block').css('cursor', 'default');
-          }
-          // Check if the play board is 3x3 or 4x4
-          if (gridToggle === 3) {
-            // Show Grid One 3x3 and hide the other one 
-            $('.container-one').css('display', 'block');
-            $('.container-two').css('display', 'none');
-            // Add highlighted border to itself; remove from its sibling
-            $('.grid-one').addClass('set-selected');
-            $('.grid-two').removeClass('set-selected');
-          } else if (gridToggle === 4) {
-            // Show Grid Two 4x4 and hide the other one 
-            $('.container-one').css('display', 'none');
-            $('.container-two').css('display', 'block');
-            // Add highlighted border to itself; remove from its sibling. And show in menu
-            $('.grid-one').removeClass('set-selected');
-            $('.grid-two').addClass('set-selected');
-          }
-        });
-        // Update play board
-        db.collection('gameData').doc('blockStatus').get().then(function (doc) {
-          const blockStatus = doc.data();
-          // Update block class
-          blockClassArr = blockStatus.blockClassArr;
-          // Variable to check how many blocks don't have class on Firebase. When no block has class clear update the play board
-          let blankClassBlock = 0;
-          for (let i = 0; i < $('.block').length; i++) {
-            // Use 'player1' and 'player2' classes to check if this block has been played
-            if (blockClassArr[i] === 'player1' || blockClassArr[i] === 'player2') {
-              // Show saved class on each block
-              $('.block').eq(i).addClass(blockClassArr[i]);
-              // Set the played block to clicked bg color
-              $('.block').eq(i).css('background', '#454545');
-              // Disable cursor pointer
-              $('.block').eq(i).css('cursor', 'default');
-              // Make the block not clickable
-              $('.block').eq(i).css('pointer-events', 'none');;
-            } else if(blockClassArr[i] === '' ) {
-              blankClassBlock += 1;
-            }
-            // No block has class, reset the play board
-            if (blankClassBlock === $('.block').length) {
-              $('.block').removeClass('player1').removeClass('player2');
-              // Enable click event
-              $('.block').css('pointer-events', 'auto');
-              // Enable hover event
-              $('.block').hover(blockMouseEnter, blockMouseLeave);
-              $('.block').css('background', '#292929');
-              $('.block').css('cursor', 'pointer');
-              blankClassBlock = 0;
-            }
-          }
-          blockImageArr = blockStatus.blockImageArr;
-          // Variable to check how many blocks don't have token images on Firebase. When no block has class clear update the play board
-          let blankImageBlock = 0;
-          for (let i = 0; i < $('.block').length; i++) {
-            // Use '' classes to check if this block has been played
-            if (!(blockImageArr[i] === '')) {
-              // Show saved block image src on each block
-              $('.block').eq(i).children().attr('src', blockImageArr[i]);
-            } else if (blockImageArr[i] === '') {
-              blankImageBlock += 1;
-              console.log(blankImageBlock);
-            }
-            // No block has image, reset the play board
-            if (blankImageBlock === $('.block').length) {
-              $('.block').children().attr('src', '');
-              blankImageBlock = 0;
-            }
-          }  
-        });
-      }
+    const roomRef = db.collection('games').doc(onlineState.roomId);
+    db.runTransaction(function(transaction) {
+      return transaction.get(roomRef).then(function(doc) {
+        if (!doc.exists) {
+          throw new Error('Online room does not exist.');
+        }
+        const room = doc.data();
+        const updateData = buildOnlineRoomUpdate(room);
+        if (!isAllowedOnlineRoomUpdate(room, updateData)) {
+          throw new Error('Online room update is not allowed.');
+        }
+        transaction.update(roomRef, updateData);
+      });
+    }).catch(function(error) {
+      message = 'Online move was rejected.';
+      $('.message h2').text(message);
+      console.error('Saving online room failed:', error);
     });
-  });
-  
-
-
-  /* ------------------------------- Clear data on Firebase ------------------------------- */
-
-  const clearFirebase = function() {
-    db.collection("gameData").doc('playerOne').delete();
-    db.collection("gameData").doc('playerTwo').delete();
-    db.collection("gameData").doc('playStatus').delete();
-    db.collection("gameData").doc('blockStatus').delete();
   };
-
-
 
   /* ------------------------------ Event Handler ----------------------------- */
 
@@ -1244,5 +1599,16 @@ $(document).ready(function () {
 
  
   $('.copy-url-button').on('click', copyUrl);
+
+  if (getRoomIdFromUrl()) {
+    localStorage.clear();
+    playMode = 3;
+    playerTwo.name = 'Player Two';
+    $('.player-two-result').text(playerTwo.name);
+    $('.mode-three').addClass('set-selected');
+    $('.mode-three').siblings().removeClass('set-selected');
+    saveGame();
+    startOnlineMode();
+  }
 
 });

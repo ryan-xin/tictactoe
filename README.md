@@ -22,9 +22,12 @@ You could play it [here.](https://ryan-xin.github.io/tictactoe/)
 * Message: game message will be changed based on the result;
 * Local Storage: game data can be saved even reload the page.
 
+### Firebase online mode setup ###
+
+Online mode uses Firebase Anonymous Auth and Firestore rooms. See [Firebase Online Mode Setup](docs/firebase-online-mode.md).
+
 ### Unfixed Bugs ###
 
-* Still need to add the a feature to control player turn during online game;
 * White border on Safari when click New Game or Restart;
 * It's not mobile-responsive currently.
 

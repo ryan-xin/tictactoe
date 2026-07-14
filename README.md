@@ -16,7 +16,7 @@ You could play it [here.](https://ryan-xin.github.io/tictactoe/)
 * Grid Switch: players could choose 3x3 grid or 4x4 grid to play;
 * Play Mode: there are three play modes for user to select;
 * 1on1 Mode: 2 players play locally;
-* vs AI: play against AI on 3x3 board;
+* vs AI: play against AI on 3x3 or 4x4 board;
 * online: send url to friends and play with them;
 * New Game: the result will be clear when click New Game button in the menu;
 * Message: game message will be changed based on the result;
@@ -24,7 +24,6 @@ You could play it [here.](https://ryan-xin.github.io/tictactoe/)
 
 ### Unfixed Bugs ###
 
-* 4x4 AI mode is not working. Still needs to write the MiniMax algorithm;
 * Still need to add the a feature to control player turn during online game;
 * White border on Safari when click New Game or Restart;
 * It's not mobile-responsive currently.

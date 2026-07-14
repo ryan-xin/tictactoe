@@ -279,33 +279,42 @@ $(document).ready(function () {
           // Exit the whole play function
           return;     
         }
-        // Save game data if human doesn't win
-        saveGame();
         // Remove Hover and Pointer to inform user the clicked block is not clickable
         $(this).css('cursor', 'default');
         $(this).off('mouseenter mouseleave');
+
+        if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
+          humanStep = 0;
+          tieResult += 1;
+          message = 'Human needs you! Play again!';
+          $('.message h2').text(message);
+          gameOver();
+          return;
+        };
+
+        const aiMove = getBestMove();
+        if (aiMove !== null) {
+          aiPlay(aiMove);
+          if (winnerCheck(playerTwo, 'player2')) {
+            playerTwo.result += 1;
+            message = 'AI controls the world!';
+            $('.message h2').text(message);
+            gameOver();
+            return;
+          }
+        }
+
+        if (tieCheck(playerOne, 'player1', playerTwo, 'player2')) {
+          humanStep = 0;
+          tieResult += 1;
+          message = 'Human needs you! Play again!';
+          $('.message h2').text(message);
+          gameOver();
+          return;
+        };
+
+        saveGame();
       }
-      // AI Plays
-      // As AI plays the second, it only has four steps. I create each step for AI
-      if(humanStep === 1) {
-        aiStepOne();
-      } else if(humanStep === 2) {
-        aiStepTwo();
-      } else if(humanStep === 3) {
-        aiStepThree();
-      } else if(humanStep === 4) {
-        aiStepFour();
-      } else if(humanStep === 5) {
-        // When reach's AI's 'fifth' step means it's a tie
-        humanStep = 0;
-        // Update tie result
-        tieResult += 1;
-        // Update the message
-        message = 'Human needs you! Play again!';
-        $('.message h2').text(message);
-        gameOver();  
-      }
-      saveGame();      
       // For online Mode
     } else if (playMode === 3) {
       // Check if there is already a token. When 'src' empty run place a token
@@ -372,215 +381,220 @@ $(document).ready(function () {
 
 
   /* --------------------------------- AI PLAY -------------------------------- */
-  // For 3 x3 grid, the first 2 steps are much more important. After checking the first two steps AI only needs Attack and Defence. All the other steps will lead to a tie game.
-  // AI step one
-  const aiStepOne = function() {
-    // Clear block class array first as I use arr.push() otherwise the there will be more item than the blocks
-    blockClassArr = [];
-    // Check current situation on the board(check if the block has 'player1' 'player2');
-    blockClassChecker();
-    // As a defender AI needs to play on the fifth block first
-    // Check the human places token on the fifth block( index = 4 )
-    if (blockClassArr[4] === "player1") {
-      // If it is occupied place token on the first block
-      aiPlay(0); 
-      // If not place on the fifth block
-    } else if (blockClassArr[4] === "") {
-      aiPlay(4); 
-    }
+
+  const getActiveBoardConfig = function() {
+    const size = gridToggle;
+    return {
+      size: size,
+      offset: size === 3 ? 0 : 9,
+      maxDepth: size === 3 ? 9 : 4,
+      deadline: size === 3 ? Number.POSITIVE_INFINITY : Date.now() + 150
+    };
   };
 
-  // AI step two
-  const aiStepTwo = function() {
-    // Clear block class array first as I use arr.push() otherwise the there will be more item than the blocks
-    blockClassArr = [];
-    blockClassChecker();
-    // Some special conditions need to be checked for AI step two
-    if (blockClassArr[4] === 'player1' && blockClassArr[8] === 'player1') {
-      aiPlay(2); 
-    } else if (blockClassArr[0] === 'player1' && blockClassArr[8] === 'player1') {
-      aiPlay(1); 
-    } else if (blockClassArr[1] === 'player1' && blockClassArr[3] === 'player1') {
-      aiPlay(0); 
-    } else if (blockClassArr[1] === 'player1' && blockClassArr[5] === 'player1') {
-      aiPlay(2);
-    } else if (blockClassArr[7] === 'player1' && blockClassArr[5] === 'player1') {
-      aiPlay(8);
-    } else if (blockClassArr[7] === 'player1' && blockClassArr[3] === 'player1') {
-      aiPlay(6);
-    } else {
-      // AI is not able to win on its second step so only defence
-      aiDefence();
-    }
-  };
-
-  // AI step three
-  const aiStepThree = function () {
-    // Clear block class array first as I use arr.push() otherwise the there will be more item than the blocks
-    blockClassArr = [];
-    blockClassChecker();
-    // From the third step, AI is able to win. So call aiAttack first
-    aiAttack();
-    // Check if AI wins or not
-    if (winnerCheck(playerTwo, 'player2')) {
-      // Update AI win result
-      playerTwo.result += 1;
-      // Update the message
-      message = 'AI controls the world!';
-      $('.message h2').text(message);
-      // saveGame();
-      gameOver();
-      return;  
-    }
-    // If there is no winning block then defence
-    aiDefence();
-  };
-  
-  // AI step four
-  const aiStepFour = function () {
-    // Clear block class array first as I use arr.push() otherwise the there will be more item than the blocks
-    blockClassArr = [];
-    blockClassChecker();
-    aiAttack();
-    if (winnerCheck(playerTwo, 'player2')) {
-      // Update AI win result
-      playerTwo.result += 1;
-      // Update the message
-      message = 'AI controls the world!';
-      $('.message h2').text(message);
-      // saveGame();
-      gameOver();
-      return;  
-    }
-    aiDefence();
-  };
-
-
-  /* ----------------------------- AI Attack Play ----------------------------- */
-  // If there are two AI tokens on a line or diagonal then place token on the other blank block
-  const aiAttack = function() {
-    // Checking self win block and place token on it
-    if (blockClassArr[0] === 'player2' && blockClassArr[1] === 'player2' && blockClassArr[2] === "") {
-      aiPlay(2); 
-    } else if (blockClassArr[2] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[1] === "") {
-      aiPlay(1); 
-    } else if (blockClassArr[1] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[3] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[5] === "") {
-      aiPlay(5);
-    } else if (blockClassArr[5] === 'player2' && blockClassArr[3] === 'player2' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player2' && blockClassArr[5] === 'player2' && blockClassArr[3] === "") {
-      aiPlay(3);
-    } else if (blockClassArr[6] === 'player2' && blockClassArr[7] === 'player2' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[7] === "") {
-      aiPlay(7);
-    } else if (blockClassArr[7] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[0] === 'player2' && blockClassArr[3] === 'player2' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[6] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[3] === "") {
-      aiPlay(3);
-    } else if (blockClassArr[3] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[1] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[7] === "") {
-      aiPlay(7);
-    } else if (blockClassArr[7] === 'player2' && blockClassArr[1] === 'player2' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player2' && blockClassArr[7] === 'player2' && blockClassArr[1] === "") {
-      aiPlay(1);
-    } else if (blockClassArr[2] === 'player2' && blockClassArr[5] === 'player2' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[5] === "") {
-      aiPlay(5);
-    } else if (blockClassArr[5] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[2] === "") {
-      aiPlay(2);
-    } else if (blockClassArr[0] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player2' && blockClassArr[0] === 'player2' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player2' && blockClassArr[8] === 'player2' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[2] === 'player2' && blockClassArr[4] === 'player2' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[6] === 'player2' && blockClassArr[2] === 'player2' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player2' && blockClassArr[6] === 'player2' && blockClassArr[2] === "") {
-      aiPlay(2);
-    }
-  };
-
-
-  /* ----------------------------- AI Defence Play ---------------------------- */
-  // If there are two Human tokens on a line or diagonal then place token on the other blank block
-  const aiDefence = function() {
-    // Checking player win block and place token on it
-    if (blockClassArr[0] === 'player1' && blockClassArr[1] === 'player1' && blockClassArr[2] === "") {
-      aiPlay(2); 
-    } else if (blockClassArr[2] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[1] === "") {
-      aiPlay(1); 
-    } else if (blockClassArr[1] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[3] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[5] === "") {
-      aiPlay(5);
-    } else if (blockClassArr[5] === 'player1' && blockClassArr[3] === 'player1' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player1' && blockClassArr[5] === 'player1' && blockClassArr[3] === "") {
-      aiPlay(3);
-    } else if (blockClassArr[6] === 'player1' && blockClassArr[7] === 'player1' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[7] === "") {
-      aiPlay(7);
-    } else if (blockClassArr[7] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[0] === 'player1' && blockClassArr[3] === 'player1' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[6] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[3] === "") {
-      aiPlay(3);
-    } else if (blockClassArr[3] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[1] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[7] === "") {
-      aiPlay(7);
-    } else if (blockClassArr[7] === 'player1' && blockClassArr[1] === 'player1' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player1' && blockClassArr[7] === 'player1' && blockClassArr[1] === "") {
-      aiPlay(1);
-    } else if (blockClassArr[2] === 'player1' && blockClassArr[5] === 'player1' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[5] === "") {
-      aiPlay(5);
-    } else if (blockClassArr[5] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[2] === "") {
-      aiPlay(2);
-    } else if (blockClassArr[0] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[8] === "") {
-      aiPlay(8);
-    } else if (blockClassArr[8] === 'player1' && blockClassArr[0] === 'player1' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player1' && blockClassArr[8] === 'player1' && blockClassArr[0] === "") {
-      aiPlay(0);
-    } else if (blockClassArr[2] === 'player1' && blockClassArr[4] === 'player1' && blockClassArr[6] === "") {
-      aiPlay(6);
-    } else if (blockClassArr[6] === 'player1' && blockClassArr[2] === 'player1' && blockClassArr[4] === "") {
-      aiPlay(4);
-    } else if (blockClassArr[4] === 'player1' && blockClassArr[6] === 'player1' && blockClassArr[2] === "") {
-      aiPlay(2);
-    } else {
-      aiRandom();
-    }
-  };
-
-
-  /* ----------------------------- AI Random Play ----------------------------- */
-  // Just plays on the first blank block because AI knows it's already a tie game
-  const aiRandom = function () {
-    // AI knowns it's already a tie...
-    for(let i = 0; i < 9; i++) {
-      // Just fill the first blank block
-      if (blockClassArr[i] === "") {
-        aiPlay(i);
-        return;
+  const getActiveBoardState = function(config) {
+    const board = [];
+    for (let i = 0; i < config.size * config.size; i++) {
+      const $block = $('.block').eq(config.offset + i);
+      if ($block.hasClass('player1')) {
+        board.push('player1');
+      } else if ($block.hasClass('player2')) {
+        board.push('player2');
+      } else {
+        board.push('');
       }
     }
+    return board;
+  };
+
+  const getWinLines = function(size) {
+    const lines = [];
+    for (let row = 0; row < size; row++) {
+      const line = [];
+      for (let col = 0; col < size; col++) {
+        line.push(row * size + col);
+      }
+      lines.push(line);
+    }
+    for (let col = 0; col < size; col++) {
+      const line = [];
+      for (let row = 0; row < size; row++) {
+        line.push(row * size + col);
+      }
+      lines.push(line);
+    }
+    const leftDiagonal = [];
+    const rightDiagonal = [];
+    for (let i = 0; i < size; i++) {
+      leftDiagonal.push(i * size + i);
+      rightDiagonal.push(i * size + (size - 1 - i));
+    }
+    lines.push(leftDiagonal);
+    lines.push(rightDiagonal);
+    return lines;
+  };
+
+  const getBoardWinner = function(board, size) {
+    const lines = getWinLines(size);
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const firstCell = board[line[0]];
+      if (firstCell === '') {
+        continue;
+      }
+      if (line.every(function(cell) { return board[cell] === firstCell; })) {
+        return firstCell;
+      }
+    }
+    return '';
+  };
+
+  const isBoardFull = function(board) {
+    return board.every(function(cell) { return cell !== ''; });
+  };
+
+  const getAvailableMoves = function(board) {
+    const moves = [];
+    for (let i = 0; i < board.length; i++) {
+      if (board[i] === '') {
+        moves.push(i);
+      }
+    }
+    return moves;
+  };
+
+  const getOrderedMoves = function(board, size) {
+    const center = (size - 1) / 2;
+    return getAvailableMoves(board).sort(function(moveA, moveB) {
+      const rowA = Math.floor(moveA / size);
+      const colA = moveA % size;
+      const rowB = Math.floor(moveB / size);
+      const colB = moveB % size;
+      const distanceA = Math.abs(rowA - center) + Math.abs(colA - center);
+      const distanceB = Math.abs(rowB - center) + Math.abs(colB - center);
+      const cornerA = (rowA === 0 || rowA === size - 1) && (colA === 0 || colA === size - 1);
+      const cornerB = (rowB === 0 || rowB === size - 1) && (colB === 0 || colB === size - 1);
+
+      if (distanceA !== distanceB) {
+        return distanceA - distanceB;
+      }
+      if (cornerA !== cornerB) {
+        return cornerA ? -1 : 1;
+      }
+      return moveA - moveB;
+    });
+  };
+
+  const scoreBoard = function(board, size, depth) {
+    const winner = getBoardWinner(board, size);
+    if (winner === 'player2') {
+      return 100000 + depth;
+    }
+    if (winner === 'player1') {
+      return -100000 - depth;
+    }
+
+    const lines = getWinLines(size);
+    let score = 0;
+    for (let i = 0; i < lines.length; i++) {
+      let aiCount = 0;
+      let humanCount = 0;
+      for (let j = 0; j < lines[i].length; j++) {
+        if (board[lines[i][j]] === 'player2') {
+          aiCount += 1;
+        } else if (board[lines[i][j]] === 'player1') {
+          humanCount += 1;
+        }
+      }
+      if (aiCount > 0 && humanCount === 0) {
+        score += Math.pow(10, aiCount);
+      } else if (humanCount > 0 && aiCount === 0) {
+        score -= Math.pow(10, humanCount) * 1.1;
+      }
+    }
+    return score;
+  };
+
+  const minimax = function(board, size, depth, isMaximizing, alpha, beta, deadline) {
+    if (Date.now() > deadline || depth === 0 || getBoardWinner(board, size) !== '' || isBoardFull(board)) {
+      return scoreBoard(board, size, depth);
+    }
+
+    const moves = getOrderedMoves(board, size);
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      for (let i = 0; i < moves.length; i++) {
+        board[moves[i]] = 'player2';
+        bestScore = Math.max(bestScore, minimax(board, size, depth - 1, false, alpha, beta, deadline));
+        board[moves[i]] = '';
+        alpha = Math.max(alpha, bestScore);
+        if (beta <= alpha || Date.now() > deadline) {
+          break;
+        }
+      }
+      return bestScore;
+    }
+
+    let bestScore = Infinity;
+    for (let i = 0; i < moves.length; i++) {
+      board[moves[i]] = 'player1';
+      bestScore = Math.min(bestScore, minimax(board, size, depth - 1, true, alpha, beta, deadline));
+      board[moves[i]] = '';
+      beta = Math.min(beta, bestScore);
+      if (beta <= alpha || Date.now() > deadline) {
+        break;
+      }
+    }
+    return bestScore;
+  };
+
+  const getImmediateMove = function(board, size, playerClass) {
+    const moves = getOrderedMoves(board, size);
+    for (let i = 0; i < moves.length; i++) {
+      board[moves[i]] = playerClass;
+      if (getBoardWinner(board, size) === playerClass) {
+        board[moves[i]] = '';
+        return moves[i];
+      }
+      board[moves[i]] = '';
+    }
+    return null;
+  };
+
+  const getBestMove = function() {
+    const config = getActiveBoardConfig();
+    const board = getActiveBoardState(config);
+    const moves = getOrderedMoves(board, config.size);
+    const winningMove = getImmediateMove(board, config.size, 'player2');
+    if (winningMove !== null) {
+      return config.offset + winningMove;
+    }
+    const blockingMove = getImmediateMove(board, config.size, 'player1');
+    if (blockingMove !== null) {
+      return config.offset + blockingMove;
+    }
+
+    let bestScore = -Infinity;
+    let bestMove = null;
+
+    for (let i = 0; i < moves.length; i++) {
+      const move = moves[i];
+      board[move] = 'player2';
+      const score = minimax(board, config.size, config.maxDepth - 1, false, -Infinity, Infinity, config.deadline);
+      board[move] = '';
+      if (score > bestScore) {
+        bestScore = score;
+        bestMove = move;
+      }
+      if (Date.now() > config.deadline) {
+        break;
+      }
+    }
+
+    if (bestMove === null && moves.length > 0) {
+      bestMove = moves[0];
+    }
+    return bestMove === null ? null : config.offset + bestMove;
   };
 
 
@@ -889,26 +903,10 @@ $(document).ready(function () {
     // Update the message
     message = 'Save human!!!';
     $('.message h2').text(message); 
-    // Change to 3x3
-    changeToGridOne()
-    if (gridToggle === 3) {
-      // Show Grid One 3x3 and hide the other one 
-      $('.container-one').css('display', 'block');
-      $('.container-two').css('display', 'none');
-      // Add highlighted border to itself; remove from its sibling
-      $('.grid-one').addClass('set-selected');
-      $('.grid-two').removeClass('set-selected');
-    } else if (gridToggle === 4) {
-      // Show Grid Two 4x4 and hide the other one 
-      $('.container-one').css('display', 'none');
-      $('.container-two').css('display', 'block');
-      // Add highlighted border to itself; remove from its sibling. And show in menu
-      $('.grid-one').removeClass('set-selected');
-      $('.grid-two').addClass('set-selected');
-    }
-    // Disable 4x4 grid button
-    $('.grid-two').css('pointer-events', 'none');
-    $('.grid-two').children().addClass('disabled-button');
+    // Enable 4x4 grid button
+    $('.grid-two').css('pointer-events', 'auto');
+    $('.grid-two').children().removeClass('disabled-button');
+    saveGame();
     saveFirebase();
   };
 

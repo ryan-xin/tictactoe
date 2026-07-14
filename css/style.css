@@ -82,12 +82,12 @@ body {
   top: 0;
   left: 0;
   background-color: #000000;
-  overflow-y: hidden;
+  overflow-y: auto;
   transition: 0.5s;
 }
 
 .burger_close {
-  position: absolute;
+  position: fixed;
   vertical-align: middle;
   top: 21px;
   right: 40px;
@@ -97,10 +97,12 @@ body {
 
 .menu-content {
   position: relative;
-  top: 8%;
+  top: 0;
   width: 560px;
+  max-height: calc(100vh - 60px);
   text-align: center;
-  margin: 30px auto;
+  margin: 0 auto;
+  padding: 60px 0 40px;
   /* border: 1px solid white; */
   color: #ffffff;
 }
@@ -356,7 +358,6 @@ body {
   margin: 10px;
   text-align: center;
 }
-
 
 
 

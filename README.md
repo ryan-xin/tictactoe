@@ -1,42 +1,67 @@
 # Tic Tac Toe
 
-### Overview ###
+Tic Tac Toe is a browser-based game with local, AI, and online multiplayer modes. It supports classic 3x3 play, a larger 4x4 board, selectable token themes, persisted local scores, and Firebase-backed online rooms that can be shared with another player by URL.
 
-Tic Tac Toe is the first individual project I made during General Assembly SEI course. It's built with HTML, CSS, JavaScript and jQuery.
+[Play the game](https://ryan-xin.github.io/tictactoe/)
 
-You could play it [here.](https://ryan-xin.github.io/tictactoe/)
+![Screenshot of the Tic Tac Toe game](assets/tictacttoe_screenshot.png)
 
-![Screenshot of the game:](https://raw.githubusercontent.com/ryan-xin/tictactoe/master/assets/tictacttoe_screenshot.png)
+## How It Works
 
-### Main Features ###
+The app is a static HTML, CSS, and JavaScript project. The game UI is rendered from `index.html`, styled by `css/style.css`, and driven by `js/main.js`.
 
-* Restart Game: players are able to restart the game but also keep the results;
-* Menu: more functions are available in full-screen takeover menu;
-* Token Switch: players are able to select token from two sets: "O"&"X" and "Bone"&"Fish";
-* Grid Switch: players could choose 3x3 grid or 4x4 grid to play;
-* Play Mode: there are three play modes for user to select;
-* 1on1 Mode: 2 players play locally;
-* vs AI: play against AI on 3x3 or 4x4 board;
-* online: send url to friends and play with them;
-* New Game: the result will be clear when click New Game button in the menu;
-* Message: game message will be changed based on the result;
-* Local Storage: game data can be saved even reload the page.
+Local play and AI mode run entirely in the browser. Local scores, selected options, and board state are saved with `localStorage` so the current session can survive a page reload.
 
-### Firebase online mode setup ###
+Online mode uses Firebase Anonymous Auth and Firestore. One player creates a room, the app writes the room ID into the URL as a `?game=` query parameter, and another player can join the same room from that shared link. Firestore rules enforce the basic room and move boundaries.
 
-Online mode uses Firebase Anonymous Auth and Firestore rooms. See [Firebase Online Mode Setup](docs/firebase-online-mode.md).
+## Main Features
 
-### Unfixed Bugs ###
+- Local two-player Tic Tac Toe.
+- AI opponent mode.
+- Online rooms with reusable share links.
+- 3x3 and 4x4 board options.
+- Two selectable token themes.
+- Restart current round without clearing scores.
+- Start a new game and clear current results.
+- Persist local game state with `localStorage`.
 
-* White border on Safari when click New Game or Restart;
-* It's not mobile-responsive currently.
+## Project Structure
 
-### Tech Used ###
+- `index.html` - static page markup and Firebase client configuration.
+- `css/style.css` - app layout, board, menu, and modal styles.
+- `js/main.js` - game state, local play, AI play, online room sync, and UI events.
+- `assets/` - logo, token SVGs, menu icons, and screenshot.
+- `firestore.rules` - Firestore security rules for online rooms.
+- `docs/firebase-online-mode.md` - Firebase setup and manual online-mode verification.
 
-HTML; CSS; JavaScript; jQuery; Local Storage; Firebase.
+## Run Locally
 
-### Acknowledgements ###
+Serve the static files from the repo root:
 
-* Some of the code is not too long to understand;
-* Still need to make my code less repetitive;
-* It is a good opportunity to learn new knowledge like: Local Storage and Firebase.
+```sh
+python3 -m http.server 8000
+```
+
+Then open:
+
+```text
+http://localhost:8000
+```
+
+## Online Mode / Firebase
+
+Online mode requires Firebase Anonymous Auth, Firestore, and the rules in `firestore.rules`. Follow [Firebase Online Mode Setup](docs/firebase-online-mode.md) for project setup and manual verification steps.
+
+## Deployment
+
+The app is deployed as static files on GitHub Pages:
+
+```text
+https://ryan-xin.github.io/tictactoe/
+```
+
+For Firebase-backed online mode, deploy Firestore rules after changing `firestore.rules`:
+
+```sh
+firebase deploy --only firestore:rules
+```

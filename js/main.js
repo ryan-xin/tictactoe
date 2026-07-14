@@ -133,6 +133,25 @@ $(document).ready(function () {
     $('.url-address').text(roomUrl);
   };
 
+  const clearRoomIdFromUrl = function() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('game');
+    window.history.replaceState({}, '', url.toString());
+    $('.url-address').text('ryan-xin.github.io/tictactoe/');
+  };
+
+  const setOnlineModeControls = function(isOnline) {
+    if (isOnline) {
+      $('.mode-one, .mode-two').addClass('mode-disabled');
+      $('.mode-one h2, .mode-two h2').addClass('disabled-button');
+      $('.leave-online').css('display', 'block');
+    } else {
+      $('.mode-one, .mode-two').removeClass('mode-disabled');
+      $('.mode-one h2, .mode-two h2').removeClass('disabled-button');
+      $('.leave-online').css('display', 'none');
+    }
+  };
+
   const getBoardClassMap = function() {
     const board = {};
     for (let i = 0; i < $('.block').length; i++) {
@@ -516,6 +535,22 @@ $(document).ready(function () {
     onlineState.unsubscribe = null;
   };
 
+  const leaveOnlineRoom = function() {
+    stopOnlineRoom();
+    clearRoomIdFromUrl();
+    localStorage.clear();
+    playMode = 1;
+    playerOne.name = 'Player One';
+    playerTwo.name = 'Player Two';
+    newGame();
+    $('.mode-one').addClass('set-selected');
+    $('.mode-one').siblings().removeClass('set-selected');
+    setOnlineModeControls(false);
+    message = 'Enjoy the game!';
+    $('.message h2').text(message);
+    hideMenu();
+  };
+
   const createOnlineRoom = function(user) {
     const roomRef = db.collection('games').doc();
     onlineState.roomId = roomRef.id;
@@ -648,14 +683,17 @@ $(document).ready(function () {
       if(playMode === 1) {
         $('.mode-one').addClass('set-selected');
         $('.mode-one').siblings().removeClass('set-selected');  
+        setOnlineModeControls(false);
       // vs AI mode
       } else if (playMode === 2) {
         $('.mode-two').addClass('set-selected');
         $('.mode-two').siblings().removeClass('set-selected');  
+        setOnlineModeControls(false);
       // Online game       
       } else if (playMode === 3) {
         $('.mode-three').addClass('set-selected');
         $('.mode-three').siblings().removeClass('set-selected');
+        setOnlineModeControls(true);
       }
 
       // Load saved game play board.
@@ -1371,6 +1409,7 @@ $(document).ready(function () {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 1;
+    setOnlineModeControls(false);
     // Enable 4x4 grid button
     $('.grid-two').css('pointer-events', 'auto');
     $('.grid-two').children().removeClass('disabled-button');
@@ -1388,6 +1427,7 @@ $(document).ready(function () {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 2;
+    setOnlineModeControls(false);
     playerTwo.name = 'AI';
     $('.player-two-result').text(playerTwo.name);
     // Update the message
@@ -1409,6 +1449,7 @@ $(document).ready(function () {
     $(this).addClass('set-selected');
     $(this).siblings().removeClass('set-selected');
     playMode = 3;
+    setOnlineModeControls(true);
     playerTwo.name = 'Player Two';
     $('.player-two-result').text(playerTwo.name);
     // Enable 4x4 grid button
@@ -1597,6 +1638,9 @@ $(document).ready(function () {
 
   $('.new-game').on('click', newGame);
 
+
+  $('.leave-online').on('click', leaveOnlineRoom);
+
  
   $('.copy-url-button').on('click', copyUrl);
 
@@ -1607,6 +1651,7 @@ $(document).ready(function () {
     $('.player-two-result').text(playerTwo.name);
     $('.mode-three').addClass('set-selected');
     $('.mode-three').siblings().removeClass('set-selected');
+    setOnlineModeControls(true);
     saveGame();
     startOnlineMode();
   }

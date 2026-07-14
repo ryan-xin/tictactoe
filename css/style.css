@@ -177,7 +177,13 @@ body {
   margin-top: 40px;
 }
 
-.new-game-button {
+.leave-online {
+  display: none;
+  margin-top: 16px;
+}
+
+.new-game-button,
+.leave-online-button {
   font-size: 20px;
   font-weight: bold;
   padding-top: 15px;
@@ -192,13 +198,19 @@ body {
   cursor: pointer;
 }
 
-.new-game-button:hover {
+.new-game-button:hover,
+.leave-online-button:hover {
   border-color:  #ffffff;
   background-color: #292929;
 }
 
 .disabled-button {
   color: #292929;
+}
+
+.mode-disabled {
+  pointer-events: none;
+  cursor: default;
 }
 
 /* ------------------------------- Navigation ------------------------------- */
@@ -344,7 +356,6 @@ body {
   margin: 10px;
   text-align: center;
 }
-
 
 
 
